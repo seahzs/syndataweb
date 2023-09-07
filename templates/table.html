@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h3>Table</h3>
+    {% for table in tables %}
+        <table>
+            <thead>
+                <tr>
+                    {% for title in titles %}
+                        <th>{{ title }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {{ table|safe }}
+            </tbody>
+        </table>
+    {% endfor %}
+{% endblock content %}
