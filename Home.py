@@ -3,9 +3,9 @@ import pandas as pd
 
 #Main Content
 st.write("## Generation and Analysis of Synthetic Data")
-st.info("To begin, upload a csv file.")
-
-csv_file = st.file_uploader("upload file", type={"csv"})
-if csv_file is not None:
-    dataset = pd.read_csv(csv_file)
-    dataset
+"**Guidelines:**"
+"- **Step 1:** Load dataset(s) from CSV file(s)."
+"- **Step 2:** Prepare datasets. (clean, drop, impute, etc.)"
+"- **Step 3:** Preliminary visualisation and analysis."
+"- **Step 4:** Generate synthetic data."
+"- **Step 5:** Preliminary visualisation and analysis."
