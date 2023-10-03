@@ -1,7 +1,19 @@
 import streamlit as st
 import pandas as pd
 
-#Main Content
+# Loads dataset from session state and updates sidebar
+datasets={}
+if 'datasets' not in st.session_state:
+    st.error('Please load datasets to continue.')
+else:
+    datasets=st.session_state['datasets']
+with st.sidebar:
+    '**Datasets loaded:**'
+    for dataset in datasets:
+        st.info(f"- {dataset}")
+
+
+# Guide
 st.write("## Generation and Analysis of Synthetic Data")
 "**Guidelines:**"
 "- **Step 1:** Load dataset(s) from CSV file(s)."

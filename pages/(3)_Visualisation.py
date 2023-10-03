@@ -1,14 +1,17 @@
 import streamlit as st
 import pandas as pd
 
-# Loads dataset and updates dataset list in sidebar
-datasets = {}
+# Loads dataset from session state and updates sidebar
+datasets={}
+if 'datasets' not in st.session_state:
+    st.error('Please load datasets to continue.')
+else:
+    datasets=st.session_state['datasets']
 with st.sidebar:
-    for dataset_name in ('Survey 2020', 'Survey 2021', 'Survey 2022'):
-        if dataset_name in st.session_state:
-            datasets[dataset_name]=st.session_state[dataset_name]
-    st.write('**Loaded Datasets:**')
-    st.info(", ".join(datasets.keys()))
+    '**Datasets loaded:**'
+    for dataset in datasets:
+        st.info(f"- {dataset}")
+
 
 #Main Content
 st.write("### Visualisation (Single)")
