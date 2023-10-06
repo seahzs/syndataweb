@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+st.set_page_config(layout='wide')
 
 # Loads dataset from session state and updates sidebar
 datasets={}
