@@ -2,17 +2,24 @@ import streamlit as st
 import pandas as pd
 st.set_page_config(layout='wide')
 
-# Loads dataset from session state and updates sidebar
+# Loads datasets and models from session state and updates sidebar
 datasets={}
+models={}
 if 'datasets' not in st.session_state:
     st.error('Please load datasets to continue.')
 else:
     datasets=st.session_state['datasets']
+if 'models' in st.session_state:
+    models=st.session_state['models']
 with st.sidebar:
-    '**Datasets loaded:**'
-    for dataset in datasets:
-        st.info(f"- {dataset}")
-
+    with st.expander("Datasets"):
+        for dataset in datasets:
+            f"- {dataset}"
+    with st.expander("Models"):
+        for dataset_models in models:
+            f"{dataset_models}:"
+            for model in models[dataset_models]:
+                f"- {model}"
 
 # Load datasets
 "### Load Datasets"

@@ -1,5 +1,10 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
+from sdv.single_table import GaussianCopulaSynthesizer
+from sdv.single_table import CTGANSynthesizer
+from sdv.single_table import CopulaGANSynthesizer
+from sdv.metadata import SingleTableMetadata
 st.set_page_config(layout='wide')
 
 # Loads datasets and models from session state and updates sidebar
@@ -20,14 +25,3 @@ with st.sidebar:
             f"{dataset_models}:"
             for model in models[dataset_models]:
                 f"- {model}"
-
-# Guide
-"## Generation and Analysis of Synthetic Data"
-"**Tasks Outline:**"
-"1) Load datasets from CSV files"
-"2) Prepare datasets - drop columns, set datatypes)"
-"3) Dataset visualisation - distribution, correlation"
-"4) ML modeling - metadata, fitting"
-"5) Generate synthetic datasets"
-"6) Synthetic data visualisation"
-"7) Export synthetic data to CSV file"

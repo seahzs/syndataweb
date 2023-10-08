@@ -5,23 +5,31 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 st.set_page_config(layout='wide')
 
-# Loads datasets from session state and updates sidebar
+# Loads datasets and models from session state and updates sidebar
 datasets={}
+models={}
 if 'datasets' not in st.session_state:
     st.error('Please load datasets to continue.')
 else:
     datasets=st.session_state['datasets']
+if 'models' in st.session_state:
+    models=st.session_state['models']
 with st.sidebar:
-    '**Datasets loaded:**'
-    for dataset in datasets:
-        st.info(f"- {dataset}")
+    with st.expander("Datasets"):
+        for dataset in datasets:
+            f"- {dataset}"
+    with st.expander("Models"):
+        for dataset_models in models:
+            f"{dataset_models}:"
+            for model in models[dataset_models]:
+                f"- {model}"
 
 #Main Content
 st.write("### Visualisation")
 col1,col2=st.columns([1,4])
 with col1:
-    sel_vis = st.selectbox("Type:", ("Distribution", "Correlation"))
     sel_ds = st.selectbox("Dataset:", options=datasets.keys())
+    sel_vis = st.selectbox("Type:", ("Distribution", "Correlation"))
     "---"
     if sel_ds:
         dataset=datasets[sel_ds]
