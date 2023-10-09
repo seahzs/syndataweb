@@ -38,23 +38,23 @@ with col1:
         with st.expander("Show metadata:"):
             st.write(pd.DataFrame.from_dict(metadata.columns).transpose())
         sel_key = st.selectbox("Primary Key:", options=dataset.columns)
-        sel_ML=st.selectbox("Synthesizer:", options=("Gaussian Copula","CTGAN","Copula GAN"))
+        sel_ml=st.selectbox("Synthesizer:", options=("Gaussian Copula","CTGAN","Copula GAN"))
         sel_epochs=st.slider('Epochs:', 1, 300)
         if st.button("Fit dataset"):
             metadata.update_column(column_name=sel_key,sdtype='id')
             metadata.set_primary_key(column_name=sel_key)
-            if sel_ML=="Gaussian Copula":
+            if sel_ml=="Gaussian Copula":
                 synthesizer = GaussianCopulaSynthesizer(metadata)
-            elif sel_ML=="CTGAN":
+            elif sel_ml=="CTGAN":
                 synthesizer = CTGANSynthesizer(metadata, epochs=sel_epochs)
-            elif sel_ML=="Copula GAN":
+            elif sel_ml=="Copula GAN":
                 synthesizer = CopulaGANSynthesizer(metadata, epochs=sel_epochs)
             with col2:
                 with st.spinner('Fitting data, please wait...'):
                     synthesizer.fit(dataset)
                 if sel_ds not in models.keys():
                     models[sel_ds]={}
-                models[sel_ds][sel_ML]=synthesizer
+                models[sel_ds][sel_ml]=synthesizer
                 st.session_state['models']=models
                 "Generated Sample:"
                 st.write(synthesizer.sample(num_rows=10))

@@ -41,6 +41,4 @@ with col1:
                     st.session_state["datasets"]=datasets
                     f"**{dataset}** - {datasets[dataset].shape}"
                     st.write(datasets[dataset].head())
-                    with st.sidebar:
-                        st.info(f"- {dataset}")
                 st.success("If headers are incorrect, repeat step 2, otherwise proceed to **'(2) Data 'Preparation'**.")
