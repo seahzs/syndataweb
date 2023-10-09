@@ -3,24 +3,23 @@ import pandas as pd
 st.set_page_config(page_title='Synthetic Data Web App',layout='wide')
 
 # Loads datasets and models from session state and updates sidebar
-with st.spinner("Loading from cache, please wait..."):
-    datasets=st.session_state['datasets'] if 'datasets' in st.session_state else {}
-    models=st.session_state['models'] if 'models' in st.session_state else {}
-    syn_datasets=st.session_state['syn_datasets'] if 'syn_datasets' in st.session_state else {}
-    with st.sidebar:
-        with st.expander("Datasets"):
-            for dataset in datasets:
-                f"- {dataset}"
-        with st.expander("Fitted Models"):
-            for dataset_models in models:
-                f"{dataset_models}:"
-                for model in models[dataset_models]:
-                    f"- {model}"
-        with st.expander("Synthetic Data"):
-            for syn_dataset in syn_datasets:
-                f"{syn_dataset}:"
-                for model_gen in syn_datasets[syn_dataset]:
-                    f"- {model_gen}"
+datasets=st.session_state['datasets'] if 'datasets' in st.session_state else {}
+models=st.session_state['models'] if 'models' in st.session_state else {}
+syn_datasets=st.session_state['syn_datasets'] if 'syn_datasets' in st.session_state else {}
+with st.sidebar:
+    with st.expander("Datasets"):
+        for dataset in datasets:
+            f"- {dataset}"
+    with st.expander("Fitted Models"):
+        for dataset_models in models:
+            f"{dataset_models}:"
+            for model in models[dataset_models]:
+                f"- {model}"
+    with st.expander("Synthetic Data"):
+        for syn_dataset in syn_datasets:
+            f"{syn_dataset}:"
+            for model_gen in syn_datasets[syn_dataset]:
+                f"- {model_gen}"
 
 # Guide
 "## Generation and Analysis of Synthetic Data"
