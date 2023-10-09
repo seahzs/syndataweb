@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 st.set_page_config(page_title='Synthetic Data Web App',layout='wide')
+
+with st.spinner("Loading Visualisation libraries, please wait..."):
+    import matplotlib.pyplot as plt
+    import seaborn as sns
 
 # Loads datasets and models from session state and updates sidebar
 datasets=st.session_state['datasets'] if 'datasets' in st.session_state else {}
@@ -54,20 +55,24 @@ else:
                 plot.set(title=f"Distribution of '{sel_y}' vs '{sel_x}'")
                 plt.xticks(rotation=270)
                 st.pyplot(plot)
-        "**Synthetic Data**"
-        if sel_ds and sel_ds in syn_datasets:
-            sel_ml = st.selectbox("From fitted model:", options=syn_datasets[sel_ds].keys())
-            syn_dataset=syn_datasets[sel_ds][sel_ml]
-            if sel_vis=="Distribution":
-                with st.spinner('Loading chart, please wait...'):
-                    plot=sns.displot(syn_dataset.sort_values([sel_feature]), x=sel_feature, stat="percent", common_norm=False, multiple="dodge", aspect=2.5, shrink=.8)
-                    plot.set(title=f"Distribution of '{sel_feature}'", ylabel="Percentage (%)")
-                    plt.xticks(rotation=270)
-                    st.pyplot(plot)
-            elif sel_vis=="Correlation":
-                with st.spinner('Loading chart, please wait...'):
-                    plot=sns.displot(syn_dataset.sort_values([sel_x]), x=sel_x, hue=sel_y, stat="percent", common_norm=False, multiple="dodge", aspect=2.5, shrink=.8)
-                    plot.set(title=f"Distribution of '{sel_y}' vs '{sel_x}'")
-                    plt.xticks(rotation=270)
-                    st.pyplot(plot)
+        if sel_ds: 
+            if sel_ds in syn_datasets:
+                "**Synthetic Data**"
+                sel_ml = st.selectbox("From fitted model:", options=syn_datasets[sel_ds].keys())
+                syn_dataset=syn_datasets[sel_ds][sel_ml]
+                if sel_vis=="Distribution":
+                    with st.spinner('Loading chart, please wait...'):
+                        plot=sns.displot(syn_dataset.sort_values([sel_feature]), x=sel_feature, stat="percent", common_norm=False, multiple="dodge", aspect=2.5, shrink=.8)
+                        plot.set(title=f"Distribution of '{sel_feature}'", ylabel="Percentage (%)")
+                        plt.xticks(rotation=270)
+                        st.pyplot(plot)
+                elif sel_vis=="Correlation":
+                    with st.spinner('Loading chart, please wait...'):
+                        plot=sns.displot(syn_dataset.sort_values([sel_x]), x=sel_x, hue=sel_y, stat="percent", common_norm=False, multiple="dodge", aspect=2.5, shrink=.8)
+                        plot.set(title=f"Distribution of '{sel_y}' vs '{sel_x}'")
+                        plt.xticks(rotation=270)
+                        st.pyplot(plot)
+            else:
+                st.info("To compare with synthetic data, please fit a model and generate its synthetic data.")
+
         

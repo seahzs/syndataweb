@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 st.set_page_config(page_title='Synthetic Data Web App',layout='wide')
 
 with st.spinner("Loading ML libraries, please wait..."):
@@ -31,7 +30,7 @@ with st.sidebar:
 #Main Content
 "### Generate Synthetic Data"
 if datasets=={} or models=={}:
-    st.error('Please load & fit datasets to continue.')
+    st.error('Please load & fit datasets with modeling.')
 else:
     col1,col2=st.columns([1,3],gap="medium")
     with col1:
