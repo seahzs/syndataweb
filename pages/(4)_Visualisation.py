@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 st.set_page_config(page_title='Synthetic Data Web App',layout='wide')
 
-with st.spinner("Loading Visualisation libraries, please wait..."):
+with st.spinner("Loading visualisation libraries, please wait..."):
     import matplotlib.pyplot as plt
     import seaborn as sns
 
