@@ -29,7 +29,7 @@ else:
     col1,col2,col3=st.columns([1,3,1])
     with col1:
         sel_ds = st.selectbox("Dataset:", options=datasets.keys())
-        sel_task=st.selectbox("Task:", ("Drop Column(s)","Set Datatypes"))
+        sel_task=st.selectbox("Task:", ("Set Datatypes","Drop Column(s)"))
         "---"
         if sel_ds:
             if sel_task=="Drop Column(s)":
@@ -47,11 +47,11 @@ else:
                     if sel_cols:
                         dataset[sel_cols]=dataset[sel_cols].astype(sel_dtype)
     with col2:
-        f"Records of {sel_ds}:"
-        st.write(dataset.head(3))
-        f"Statistics of {sel_ds}:"
+        f"Records of '{sel_ds}':"
+        st.write(dataset.head())
+        f"Statistics of '{sel_ds}':"
         st.write(dataset.describe(include='all'))
     with col3:
-        f"Datatypes of {sel_ds}:"
+        f"Datatypes of '{sel_ds}':"
         dataset.dtypes
 

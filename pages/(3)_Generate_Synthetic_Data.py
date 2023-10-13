@@ -48,8 +48,8 @@ else:
                         syn_datasets[sel_ds]={}
                     syn_datasets[sel_ds][sel_ml]=syn_data
                     st.session_state['syn_datasets']=syn_datasets
-                    f"Records of generated '{sel_ds}' using {sel_ml}:"
+                    f"Records of generated '{sel_ds}' using '{sel_ml}':"
                     st.write(syn_data.head())
-                    f"Statistics of generated '{sel_ds}' using {sel_ml}:"
+                    f"Statistics of generated '{sel_ds}' using '{sel_ml}':"
                     st.write(syn_data.describe(include='all'))
             
