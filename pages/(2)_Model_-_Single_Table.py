@@ -11,18 +11,48 @@ with st.spinner("Loading ML libraries, please wait..."):
     import os
     import shutil
     import json
-    import warnings
-    warnings.filterwarnings('ignore')
 
-def convert_irgan_meta(sel_ds, metadata):
-    irgan_meta={sel_ds:{"id_cols": [],"attributes": {},"primary_keys": [],"format": "csv"}}
-    if 'primary_key' in metadata.to_dict():
-        irgan_meta[sel_ds]["primary_keys"].append(metadata.primary_key)
-    for (col,dtype) in metadata.columns.items():
-        if dtype["sdtype"]=="id":
-            irgan_meta[sel_ds]["id_cols"].append(col)
-        irgan_meta[sel_ds]["attributes"][col]={"name":col,"type":dtype["sdtype"]}
-    return irgan_meta
+class IRGANSynthesizer():
+    def __init__(self, metadata, table_name, epochs):
+        self.metadata = metadata
+        self.table_name = table_name
+        self.epochs = epochs
+        self.irgan_meta={self.table_name:{"id_cols": [],"attributes": {},"primary_keys": [],"format": "pickle"}}
+        if 'primary_key' in self.metadata.to_dict():
+            self.irgan_meta[self.table_name]["primary_keys"].append(self.metadata.primary_key)
+        for (col,dtype) in self.metadata.columns.items():
+            if dtype["sdtype"]=="id":
+                self.irgan_meta[self.table_name]["id_cols"].append(col)
+            self.irgan_meta[self.table_name]["attributes"][col]={"name":col,"type":dtype["sdtype"]}
+    def fit(self, dataset):
+        shutil.rmtree(f'./irgan/{self.table_name}', ignore_errors=True)
+        os.makedirs(f'./irgan/{self.table_name}/out/single-irgan', exist_ok=True)
+        os.makedirs(f'./irgan/{self.table_name}/data', exist_ok=True)
+        self.dataset_size=dataset.shape[0]
+        dataset.to_pickle(f'./irgan/{self.table_name}/data/{self.table_name}.pkl')
+        with open(f'./irgan/{self.table_name}/data/single_db_config.json', 'w') as f:
+            json.dump(self.irgan_meta, f, indent=2)
+        self.augmented_db = irgan.augment(file_path=f'./irgan/{self.table_name}/data/single_db_config.json', 
+                                        data_dir=f'./irgan/{self.table_name}/data/', 
+                                        temp_cache=f'./irgan/{self.table_name}/out/single-irgan/temp')
+        self.tab_models, self.deg_models = irgan.train(
+            database=self.augmented_db, do_train=True,
+            tab_trainer_args={sel_ds: {'trainer_type': 'CTGAN', 'embedding_dim': 128,
+                'gen_optim_lr': 2e-4, 'disc_optim_lr': 2e-4, 'gen_optim_weight_decay': 0, 'disc_optim_weight_decay': 0,
+                'gen_scheduler': 'ConstantLR', 'disc_scheduler': 'ConstantLR',
+                'ckpt_dir': f'./irgan/{sel_ds}/out/single-irgan/checkpoints', 'log_dir': f'./irgan/{sel_ds}/out/single-irgan/tflog', 'resume': True}},
+            deg_trainer_args={}, ser_trainer_args={},
+            tab_train_args={sel_ds: {'epochs': sel_epochs, 'batch_size': 200, 'save_freq': 100000}},
+            deg_train_args={}, ser_train_args={})
+    def sample(self, num_rows):
+        self.syn_db = irgan.generate(
+            real_db=self.augmented_db, tab_models=self.tab_models, deg_models=self.deg_models,
+            save_to=f'./irgan/{self.table_name}/out/single-irgan/generated',
+            tab_batch_sizes={self.table_name: 200}, deg_batch_sizes={},
+            scaling={self.table_name: num_rows/self.dataset_size},
+            save_db_to=f'./irgan/{self.table_name}/out/single-irgan/fake_db', 
+            temp_cache=f'./irgan/{self.table_name}/out/single-irgan/temp')
+        return pd.read_csv(f'./irgan/{self.table_name}/out/single-irgan/generated/{self.table_name}.csv')
 
 # Loads datasets and models from session state and updates sidebar
 datasets=st.session_state['datasets'] if 'datasets' in st.session_state else {}
@@ -72,30 +102,10 @@ else:
                 elif sel_ml=="TVAE":
                     synthesizer = TVAESynthesizer(metadata, epochs=sel_epochs)
                 elif sel_ml=="IRGAN":
-                    pass
+                    synthesizer = IRGANSynthesizer(metadata, table_name=sel_ds, epochs=sel_epochs)
                 with col2:
                     with st.spinner('Fitting model, please wait...'):
-                        if sel_ml in ("Copula GAN","Gaussian Copula","CTGAN","TVAE"):
-                            synthesizer.fit(dataset)
-                        elif sel_ml == "IRGAN":
-                            dataset = dataset.astype({'month_year_of_birth': 'datetime64[ns]'})
-                            shutil.rmtree(f'./irgan/{sel_ds}', ignore_errors=True)
-                            os.makedirs(f'./irgan/{sel_ds}/out/single-irgan', exist_ok=True)
-                            os.makedirs(f'./irgan/{sel_ds}/data', exist_ok=True)
-                            dataset.to_pickle(f'./irgan/{sel_ds}/data/{sel_ds}.pkl')
-                            with open(f'./irgan/{sel_ds}/data/single_db_config.json', 'w', encoding='utf-8') as f:
-                                json.dump(convert_irgan_meta(sel_ds, metadata), f, indent=2)
-                            augmented_db = irgan.augment(file_path=f'./irgan/{sel_ds}/data/single_db_config.json', data_dir=f'./irgan/{sel_ds}/data/', temp_cache=f'./irgan/{sel_ds}/out/single-irgan/temp')
-                            tab_models, deg_models = irgan.train(
-                                database=augmented_db, do_train=True,
-                                tab_trainer_args={sel_ds: {'trainer_type': 'CTGAN', 'embedding_dim': 128,
-                                    'gen_optim_lr': 2e-4, 'disc_optim_lr': 2e-4, 'gen_optim_weight_decay': 0, 'disc_optim_weight_decay': 0,
-                                    'gen_scheduler': 'ConstantLR', 'disc_scheduler': 'ConstantLR',
-                                    'ckpt_dir': f'./irgan/{sel_ds}/out/single-irgan/checkpoints', 'log_dir': f'./irgan/{sel_ds}/out/single-irgan/tflog', 'resume': True}},
-                                deg_trainer_args={}, ser_trainer_args={},
-                                tab_train_args={sel_ds: {'epochs': sel_epochs, 'batch_size': 200, 'save_freq': 100000}},
-                                deg_train_args={}, ser_train_args={})
-                            synthesizer = {"tab_models":tab_models, "deg_models": deg_models}
+                        synthesizer.fit(dataset)
                     if sel_ds not in models.keys():
                         models[sel_ds]={}
                     models[sel_ds][sel_ml]=synthesizer
