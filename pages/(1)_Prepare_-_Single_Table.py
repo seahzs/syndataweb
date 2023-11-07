@@ -12,12 +12,12 @@ with st.sidebar:
     with st.expander("Datasets"):
         for dataset in datasets:
             f"- {dataset}"
-    with st.expander("Fitted Models"):
+    with st.expander("Fitted Models - Single Table"):
         for dataset_models in models:
             f"{dataset_models}:"
             for model in models[dataset_models]:
                 f"- {model}"
-    with st.expander("Synthetic Data"):
+    with st.expander("Generated Data - Single Table"):
         for syn_dataset in syn_datasets:
             f"{syn_dataset}:"
             for model_gen in syn_datasets[syn_dataset]:

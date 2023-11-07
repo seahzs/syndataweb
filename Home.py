@@ -25,7 +25,7 @@ with st.sidebar:
 
 # Guide
 "## Generation and Analysis of Synthetic Data"
-st.info("**Workflow:** Load Datasets > Prepare Data > ML Modeling > Generate Synthetic Data > Visualise > Export")
+st.info("**Workflow:** Load Data > Prepare > Model > Generate > Visualise > Export")
 "---"
 col1,col2=st.columns([2,5], gap="medium")
 with col1:
