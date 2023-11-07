@@ -28,10 +28,10 @@ with st.sidebar:
 if datasets=={}:
     st.error('Please load datasets to continue.')
 else:
-    col1,col2=st.columns([1,4])
+    col1,col2=st.columns([1,4],gap="medium")
     with col1:
         sel_ds = st.selectbox("Dataset:", options=datasets.keys())
-        sel_task=st.radio("Task:", ("Drop columns", "Set datatypes", "Set primary key","Validate datatypes"))
+        sel_task=st.radio("Task:", ("Set datatypes", "Set primary key", "Drop columns"))
         "---"
         if sel_ds:
             dataset=datasets[sel_ds]
@@ -74,12 +74,10 @@ else:
                     all_metadata[sel_ds]=metadata
                     st.session_state['all_metadata']=all_metadata
                 st.info("**Hint:** Set column datatype as 'id' or 'others' in order to be used as primary key.")
-            elif sel_task=="Validate datatypes":
-                pass
     with col2:
-        f"Records of '{sel_ds}':"
+        f"**{sel_ds}** - Preview of records"
         st.write(dataset.head())
-        f"Datatypes of '{sel_ds}' (*metadata*):"
+        f"**{sel_ds}** - Datatypes (*metadata*):"
         st.write(pd.DataFrame.from_dict(metadata.columns))
         if 'primary_key' in metadata.to_dict():
             st.success(f"Primary key of '{sel_ds}' is set as *'{metadata.to_dict()['primary_key']}'*")

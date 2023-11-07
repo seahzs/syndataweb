@@ -48,8 +48,8 @@ with col1:
                     all_metadata[dataset]=metadata
                     st.session_state["datasets"]=datasets
                     st.session_state["all_metadata"]=all_metadata
-                    f"**{dataset}** - {datasets[dataset].shape}"
+                    f"**{dataset}** - Preview (*{datasets[dataset].shape[1]}* columns, *{datasets[dataset].shape[0]}* records)"
                     st.write(datasets[dataset].head())
-                    f"**{dataset}** - auto-detect datatypes (*metadata*)"
+                    f"**{dataset}** - Auto-detected datatypes (*metadata*)"
                     st.write(pd.DataFrame.from_dict(metadata.columns))
                 st.success("If headers are incorrect, repeat step 2, otherwise proceed to **'(2) Data 'Preparation'**.")

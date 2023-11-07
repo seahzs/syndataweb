@@ -4,3 +4,9 @@ numpy
 pyplot
 seaborn
 sdv
+irgan:
+- tensorboard
+- datasynthesizer
+- pandasql
+patch irgan:
+Remove evaluation entries from %AppData%\Python\Python39\site-packages\irg\engine\__init__.py

@@ -6,10 +6,11 @@ with st.spinner("Loading ML libraries, please wait..."):
     from sdv.single_table import GaussianCopulaSynthesizer
     from sdv.single_table import CTGANSynthesizer
     from sdv.single_table import CopulaGANSynthesizer
-    from sdv.metadata import SingleTableMetadata
+    from sdv.single_table import TVAESynthesizer
 
 # Loads datasets and models from session state and updates sidebar
 datasets=st.session_state['datasets'] if 'datasets' in st.session_state else {}
+all_metadata=st.session_state['all_metadata'] if 'all_metadata' in st.session_state else {}
 models=st.session_state['models'] if 'models' in st.session_state else {}
 syn_datasets=st.session_state['syn_datasets'] if 'syn_datasets' in st.session_state else {}
 with st.sidebar:
@@ -30,7 +31,7 @@ with st.sidebar:
 #Main Content
 "### Generate (Single Table)"
 if datasets=={} or models=={}:
-    st.error('Please load & fit datasets with modeling.')
+    st.error('Please load datasets & fit models to continue.')
 else:
     col1,col2=st.columns([1,3],gap="medium")
     with col1:
