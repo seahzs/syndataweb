@@ -28,7 +28,7 @@ with st.sidebar:
                 f"- {model_gen}"
 
 #Main Content
-"### Generate Synthetic Data"
+"### Generate (Single Table)"
 if datasets=={} or models=={}:
     st.error('Please load & fit datasets with modeling.')
 else:
