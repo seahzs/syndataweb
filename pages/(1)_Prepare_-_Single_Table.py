@@ -79,6 +79,7 @@ else:
         st.write(dataset.head())
         f"**{sel_ds}** - Datatypes (*metadata*):"
         st.write(pd.DataFrame.from_dict(metadata.columns))
+        st.write(metadata.columns)
         if 'primary_key' in metadata.to_dict():
             st.success(f"Primary key of '{sel_ds}' is set as *'{metadata.to_dict()['primary_key']}'*")
 
