@@ -8,13 +8,18 @@ with st.spinner("Loading visualisation libraries, please wait..."):
 
 # Loads datasets and models from session state and updates sidebar
 datasets=st.session_state['datasets'] if 'datasets' in st.session_state else {}
-all_metadata=st.session_state['all_metadata'] if 'all_metadata' in st.session_state else {}
+single_metadata=st.session_state['single_metadata'] if 'single_metadata' in st.session_state else {}
+multi_metadata=st.session_state['multi_metadata'] if 'multi_metadata' in st.session_state else {}
 models=st.session_state['models'] if 'models' in st.session_state else {}
 syn_datasets=st.session_state['syn_datasets'] if 'syn_datasets' in st.session_state else {}
 with st.sidebar:
     with st.expander("Datasets"):
         for dataset in datasets:
             f"- {dataset}"
+    with st.expander("Grouped Datasets"):
+        if multi_metadata:
+            for dataset in multi_metadata['datasets']:
+                f"- {dataset}"
     with st.expander("Fitted Models - Single Table"):
         for dataset_models in models:
             f"{dataset_models}:"
@@ -27,14 +32,14 @@ with st.sidebar:
                 f"- {model_gen}"
 
 #Main Content
-"### Visualisation - Single Table"
+"### Visualise (Single Table)"
 if datasets=={}:
     st.error('Please load datasets to continue.')
 else:
     col1, col2 = st.columns([1,4])
     with col1:
         sel_vis = st.radio("Type:", ("Distribution", "Correlation"))
-        sel_ds = st.selectbox("Dataset:", options=datasets.keys())
+        sel_ds = st.radio("Dataset:", options=datasets.keys())
         if sel_ds:
             dataset=datasets[sel_ds]
             if sel_vis=="Distribution":
