@@ -42,10 +42,11 @@ else:
             elif sel_task=="Set Datatypes":
                 dataset=datasets[sel_ds]
                 sel_cols=st.multiselect("Columns to convert:", sorted(dataset.columns))
-                sel_dtype = st.selectbox("Datatype:", ('Int64','Float64','datetime64[ns]','boolean'))
+                sel_dtype = st.selectbox("Datatype:", ('datetime64[ns]','Int64','Float64','boolean'))
                 if st.button('Apply'):
                     if sel_cols:
                         dataset[sel_cols]=dataset[sel_cols].astype(sel_dtype)
+                st.info("**Hint:** Change all date/time columns to *'datetime64[ns]'* datatype.")
     with col2:
         f"Records of '{sel_ds}':"
         st.write(dataset.head())
