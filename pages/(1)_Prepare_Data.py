@@ -35,20 +35,20 @@ if datasets=={}:
 else:
     col1,col2=st.columns([1,3],gap="medium")
     with col1:
-        sel_task=st.radio("Task:", ("Set datatypes", "Set primary key", "Drop columns", "Group datasets", "Add inter-table relationship", "Remove inter-table relationship"))
+        sel_task=st.radio("Task:", ("Set datatypes", "Set primary key", "Remove primary key", "Drop columns", "Group datasets", "Add inter-table relationship", "Remove inter-table relationship"))
         "---"
-        if sel_task in ("Set datatypes", "Set primary key", "Drop columns"):
+        if sel_task in ("Set datatypes", "Set primary key", "Remove primary key", "Drop columns"):
             sel_ds = st.radio("Select dataset:", options=datasets.keys())
             if sel_ds:
                 dataset=datasets[sel_ds]
                 metadata=single_metadata[sel_ds]
                 if sel_task=="Set datatypes":
-                    sel_dtype = st.radio("Set datatype:", ('boolean','categorical','datetime','numerical','id','other'))
+                    sel_dtype = st.radio("Select datatype:", ('boolean','categorical','datetime','numerical','id','other'))
                     if sel_dtype == 'other':
                         oth_dtype = st.selectbox("Other Datatype:", ('address','email','ipv4_address','ipv6_address','mac_address','name','phone_number','ssn','user_agent_string'))
                         pii = st.toggle('sensitive info (to anonymize)')
-                    sel_cols=st.multiselect("Columns to set:", sorted(dataset.columns))
-                    if st.button('Apply'):
+                    sel_cols=st.multiselect("Select columns:", sorted(dataset.columns))
+                    if st.button('Set datatype'):
                         if sel_cols:
                             if sel_dtype=='other':
                                 for col in sel_cols:
@@ -61,15 +61,23 @@ else:
                     st.info("**Hint:** Change all date/time columns to *'datetime'* datatype.")
                 elif sel_task=="Set primary key":
                     pri_key_dtypes=('id','address','email','ipv4_address','ipv6_address','mac_address','name','phone_number','ssn','user_agent_string')
-                    sel_key=st.selectbox("Select primary key:", [col for (col,dtype) in metadata.to_dict()["columns"].items() if dtype["sdtype"] in pri_key_dtypes] )
-                    if st.button('Apply'):
+                    sel_key=st.selectbox("Select column:", [col for (col,dtype) in metadata.to_dict()["columns"].items() if dtype["sdtype"] in pri_key_dtypes] )
+                    if st.button('Set primary key'):
                         metadata.set_primary_key(sel_key)
                         single_metadata[sel_ds]=metadata
                         st.session_state['single_metadata']=single_metadata
                     st.info("**Hint:** Set column datatype as 'id' or 'others' in order to be used as primary key.")
+                elif sel_task=="Remove primary key":
+                    if st.button('Remove primary key'):
+                        meta=metadata.to_dict()
+                        del meta['primary_key']
+                        metadata=SingleTableMetadata.load_from_dict(meta)
+                        single_metadata[sel_ds]=metadata
+                        st.session_state['single_metadata']=single_metadata
+                    st.info("**Hint:** Set column datatype as 'id' or 'others' in order to be used as primary key.")
                 elif sel_task=="Drop columns":
-                    to_drop=st.multiselect("Columns to drop:", sorted(dataset.columns))
-                    if st.button('Apply'):
+                    to_drop=st.multiselect("Select columns:", sorted(dataset.columns))
+                    if st.button('Drop columns'):
                         dataset=dataset.drop(columns=to_drop)
                         meta_dict=metadata.to_dict()
                         for col in to_drop:
@@ -86,11 +94,11 @@ else:
                 f"**{sel_ds}** - Datatypes (*metadata*):"
                 st.write(pd.DataFrame.from_dict(metadata.columns))
                 if 'primary_key' in metadata.to_dict():
-                    st.success(f"Primary key of '{sel_ds}' is set as *'{metadata.to_dict()['primary_key']}'*")
+                    st.info(f"Primary key of '{sel_ds}' is set as *'{metadata.to_dict()['primary_key']}'*")
         elif sel_task == "Group datasets":
             st.info("Please set up datatypes and primary keys for each dataset *(table)* before grouping them.")
             sel_multi_ds = st.multiselect("Select ≥2 datasets *(tables)* to group:", options=datasets.keys())
-            if st.button("Apply"):
+            if st.button("Group datasets"):
                 if len(sel_multi_ds)<2:
                     st.error("**Error:** Please select 2 or more datasets.")
                 else:
@@ -115,7 +123,7 @@ else:
                 if sel_parent!=sel_child:
                     sel_pri_key=st.selectbox("Select parent's primary key:",datasets[sel_parent].columns)
                     sel_fgn_key=st.selectbox("Select child's foreign key:",datasets[sel_child].columns)
-                    if st.button("Apply"):
+                    if st.button("Add relationship"):
                         multi_metadata['metadata'].add_relationship(parent_table_name=sel_parent,child_table_name=sel_child,
                                                                     parent_primary_key=sel_pri_key,child_foreign_key=sel_fgn_key)
                         st.session_state['multi_metadata']=multi_metadata
@@ -130,7 +138,7 @@ else:
                 sel_parent=st.radio("Select parent:",multi_metadata['datasets'])
                 sel_child=st.radio("Select child *(≠ parent)*:",multi_metadata['datasets'], index=1)
                 if sel_parent!=sel_child:
-                    if st.button("Apply"):
+                    if st.button("Remove relationship"):
                         multi_meta=multi_metadata['metadata'].to_dict()
                         for rship in multi_meta['relationships']:
                             if rship['parent_table_name']==sel_parent and rship['child_table_name']==sel_child:

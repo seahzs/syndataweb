@@ -87,42 +87,46 @@ with st.sidebar:
                 f"- {model_gen}"
 
 #Main Content
-"### Model (Single Table)"
+"### Model (Training)"
 if datasets=={}:
     st.error('Please load datasets to continue.')
 else:
     col1,col2=st.columns([1,3],gap="medium")
     with col1:
-        sel_ds = st.radio("Dataset:", options=datasets.keys())
-        if sel_ds:
-            dataset=datasets[sel_ds]
-            metadata = single_metadata[sel_ds]
-            with st.expander("Show metadata (*datatypes*):"):
-                if 'primary_key' in metadata.to_dict():
-                    f"Primary key: *'{metadata.to_dict()['primary_key']}'*"
-                st.write(pd.DataFrame.from_dict(metadata.columns).transpose())
-            "---"
-            sel_ml=st.radio("Model *(Synthesizer)*:", ("Copula GAN","CTGAN","Gaussian Copula",'TVAE','IRGAN'))
-            if sel_ml in ("Copula GAN","CTGAN",'TVAE','IRGAN'):
-                sel_epochs=st.slider('Epochs (*training cycles*):', 1, 300)
-            if st.button("Fit model"):
-                if sel_ml=="Gaussian Copula":
-                    synthesizer = GaussianCopulaSynthesizer(metadata)
-                elif sel_ml=="CTGAN":
-                    synthesizer = CTGANSynthesizer(metadata, epochs=sel_epochs)
-                elif sel_ml=="Copula GAN":
-                    synthesizer = CopulaGANSynthesizer(metadata, epochs=sel_epochs)
-                elif sel_ml=="TVAE":
-                    synthesizer = TVAESynthesizer(metadata, epochs=sel_epochs)
-                elif sel_ml=="IRGAN":
-                    synthesizer = IRGANSynthesizer(metadata, table_name=sel_ds, epochs=sel_epochs)
-                with col2:
-                    with st.spinner('Fitting model, this may take several minutes... Please wait.'):
-                        synthesizer.fit(dataset)
-                    if sel_ds not in models.keys():
-                        models[sel_ds]={}
-                    models[sel_ds][sel_ml]=synthesizer
-                    st.session_state['models']=models
-                    f"**{sel_ds}** - Generated sample of 10 records using **'{sel_ml}'**"
-                    st.write(synthesizer.sample(num_rows=10))
-            st.info("**Hint:** Ensure that metadata is well prepared before modeling.")
+        sel_task=st.radio("Task:", ("Model single table", "Model multiple tables *(grouped)*"))
+        "---"
+        if sel_task=="Model single table":
+            sel_ds = st.radio("Select dataset:", options=datasets.keys())
+            if sel_ds:
+                dataset=datasets[sel_ds]
+                metadata = single_metadata[sel_ds]
+                with st.expander("Show metadata (*datatypes*):"):
+                    if 'primary_key' in metadata.to_dict():
+                        f"Primary key: *'{metadata.to_dict()['primary_key']}'*"
+                    st.write(pd.DataFrame.from_dict(metadata.columns).transpose())
+                sel_ml=st.radio("Select model *(synthesizer)*:", ("Copula GAN","CTGAN","Gaussian Copula",'TVAE','IRGAN'))
+                if sel_ml in ("Copula GAN","CTGAN",'TVAE','IRGAN'):
+                    sel_epochs=st.slider('Epochs (*training cycles*):', 1, 300)
+                if st.button("Fit model"):
+                    if sel_ml=="Gaussian Copula":
+                        synthesizer = GaussianCopulaSynthesizer(metadata)
+                    elif sel_ml=="CTGAN":
+                        synthesizer = CTGANSynthesizer(metadata, epochs=sel_epochs)
+                    elif sel_ml=="Copula GAN":
+                        synthesizer = CopulaGANSynthesizer(metadata, epochs=sel_epochs)
+                    elif sel_ml=="TVAE":
+                        synthesizer = TVAESynthesizer(metadata, epochs=sel_epochs)
+                    elif sel_ml=="IRGAN":
+                        synthesizer = IRGANSynthesizer(metadata, table_name=sel_ds, epochs=sel_epochs)
+                    with col2:
+                        with st.spinner('Fitting model, this may take several minutes... Please wait.'):
+                            synthesizer.fit(dataset)
+                        if sel_ds not in models.keys():
+                            models[sel_ds]={}
+                        models[sel_ds][sel_ml]=synthesizer
+                        st.session_state['models']=models
+                        f"**{sel_ds}** - Generated sample of 10 records using **'{sel_ml}'**"
+                        st.write(synthesizer.sample(num_rows=10))
+                st.info("**Hint:** Ensure that metadata is well prepared before modeling.")
+        elif sel_task=="Model multiple tables *(grouped)*":
+            pass
