@@ -19,6 +19,7 @@ class IRGANSynthesizer():
         self.table_name = table_name
         self.epochs = epochs
         self.directory=f'./irgan/single/{self.table_name}'
+        shutil.rmtree(self.directory, ignore_errors=True)
         self.irgan_meta={self.table_name:{"id_cols": [],"attributes": {},"primary_keys": [],"format": "pickle"}}
         if 'primary_key' in self.metadata.to_dict():
             self.irgan_meta[self.table_name]["primary_keys"].append(self.metadata.primary_key)
