@@ -8,7 +8,8 @@ st.set_page_config(page_title='Synthetic Data Web App',layout='wide')
 datasets=st.session_state['datasets'] if 'datasets' in st.session_state else {}
 single_metadata=st.session_state['single_metadata'] if 'single_metadata' in st.session_state else {}
 multi_metadata=st.session_state['multi_metadata'] if 'multi_metadata' in st.session_state else {}
-models=st.session_state['models'] if 'models' in st.session_state else {}
+single_models=st.session_state['single_models'] if 'single_models' in st.session_state else {}
+multi_models=st.session_state['multi_models'] if 'multi_models' in st.session_state else {}
 syn_datasets=st.session_state['syn_datasets'] if 'syn_datasets' in st.session_state else {}
 with st.sidebar:
     with st.expander("Datasets"):
@@ -19,15 +20,19 @@ with st.sidebar:
             for dataset in multi_metadata['datasets']:
                 f"- {dataset}"
     with st.expander("Fitted Models - Single Table"):
-        for dataset_models in models:
+        for dataset_models in single_models:
             f"{dataset_models}:"
-            for model in models[dataset_models]:
+            for model in single_models[dataset_models]:
                 f"- {model}"
+    with st.expander("Fitted Models - Multiple Tables"):
+        for models in multi_models:
+            f"- {model}"
     with st.expander("Generated Data - Single Table"):
         for syn_dataset in syn_datasets:
             f"{syn_dataset}:"
             for model_gen in syn_datasets[syn_dataset]:
                 f"- {model_gen}"
+
 #Main Content
 "### Prepare Data"
 if datasets=={}:
@@ -89,14 +94,14 @@ else:
                         st.session_state['single_metadata']=single_metadata
                     st.warning("**Warning:** This action is irreversible, dropped columns cannot be recovered.")
             with col2:
-                f"**{sel_ds}** - Preview of records"
+                f"**{sel_ds}** - Preview"
                 st.write(dataset.head())
-                f"**{sel_ds}** - Datatypes (*metadata*):"
+                f"**{sel_ds}** - Datatypes (*metadata*)"
                 st.write(pd.DataFrame.from_dict(metadata.columns))
                 if 'primary_key' in metadata.to_dict():
                     st.info(f"Primary key of '{sel_ds}' is set as *'{metadata.to_dict()['primary_key']}'*")
         elif sel_task == "Group datasets":
-            st.info("Please set up datatypes and primary keys for each dataset *(table)* before grouping them.")
+            st.warning("**Warning:** Please set up datatypes and primary keys before grouping. Existing grouping will be replaced.")
             sel_multi_ds = st.multiselect("Select ≥2 datasets *(tables)* to group:", options=datasets.keys())
             if st.button("Group datasets"):
                 if len(sel_multi_ds)<2:
@@ -108,7 +113,7 @@ else:
                     multi_metadata={'datasets':sel_multi_ds,'metadata':MultiTableMetadata.load_from_dict(multi_meta)}
                     st.session_state['multi_metadata']=multi_metadata
                     st.success("Datasets *(tables)* have been grouped. Please add inter-table relationships.")
-            st.warning("**Warning:** This will replace the existing grouping and reset inter-table relationships.")
+            
             with col2:
                 for sel_ds in sel_multi_ds:
                     if "primary_key" in single_metadata[sel_ds].to_dict():

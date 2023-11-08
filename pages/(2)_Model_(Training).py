@@ -7,13 +7,16 @@ with st.spinner("Loading ML libraries, please wait..."):
     from sdv.single_table import CTGANSynthesizer
     from sdv.single_table import CopulaGANSynthesizer
     from sdv.single_table import TVAESynthesizer
+    from sdv.multi_table import HMASynthesizer
     import irg.engine as irgan
     import os
     import shutil
     import json
+    import warnings
+    warnings.filterwarnings('ignore')
 
 #synthesizer wrapper for IRGAN
-class IRGANSynthesizer():
+class SingleIRGANSynthesizer():
     def __init__(self, metadata, table_name, epochs):
         self.metadata = metadata
         self.table_name = table_name
@@ -65,7 +68,8 @@ class IRGANSynthesizer():
 datasets=st.session_state['datasets'] if 'datasets' in st.session_state else {}
 single_metadata=st.session_state['single_metadata'] if 'single_metadata' in st.session_state else {}
 multi_metadata=st.session_state['multi_metadata'] if 'multi_metadata' in st.session_state else {}
-models=st.session_state['models'] if 'models' in st.session_state else {}
+single_models=st.session_state['single_models'] if 'single_models' in st.session_state else {}
+multi_models=st.session_state['multi_models'] if 'multi_models' in st.session_state else {}
 syn_datasets=st.session_state['syn_datasets'] if 'syn_datasets' in st.session_state else {}
 with st.sidebar:
     with st.expander("Datasets"):
@@ -76,10 +80,13 @@ with st.sidebar:
             for dataset in multi_metadata['datasets']:
                 f"- {dataset}"
     with st.expander("Fitted Models - Single Table"):
-        for dataset_models in models:
+        for dataset_models in single_models:
             f"{dataset_models}:"
-            for model in models[dataset_models]:
+            for model in single_models[dataset_models]:
                 f"- {model}"
+    with st.expander("Fitted Models - Multiple Tables"):
+        for models in multi_models:
+            f"- {model}"
     with st.expander("Generated Data - Single Table"):
         for syn_dataset in syn_datasets:
             f"{syn_dataset}:"
@@ -117,16 +124,40 @@ else:
                     elif sel_ml=="TVAE":
                         synthesizer = TVAESynthesizer(metadata, epochs=sel_epochs)
                     elif sel_ml=="IRGAN":
-                        synthesizer = IRGANSynthesizer(metadata, table_name=sel_ds, epochs=sel_epochs)
+                        synthesizer = SingleIRGANSynthesizer(metadata, table_name=sel_ds, epochs=sel_epochs)
                     with col2:
                         with st.spinner('Fitting model, this may take several minutes... Please wait.'):
                             synthesizer.fit(dataset)
-                        if sel_ds not in models.keys():
-                            models[sel_ds]={}
-                        models[sel_ds][sel_ml]=synthesizer
-                        st.session_state['models']=models
-                        f"**{sel_ds}** - Generated sample of 10 records using **'{sel_ml}'**"
-                        st.write(synthesizer.sample(num_rows=10))
+                            if sel_ds not in single_models.keys():
+                                single_models[sel_ds]={}
+                            single_models[sel_ds][sel_ml]=synthesizer
+                            st.session_state['single_models']=single_models
+                            f"**{sel_ds}** - Generated sample of 10 records using **'{sel_ml}'**"
+                            st.write(synthesizer.sample(num_rows=10))
                 st.info("**Hint:** Ensure that metadata is well prepared before modeling.")
         elif sel_task=="Model multiple tables *(grouped)*":
-            pass
+            if multi_metadata:
+                metadata=multi_metadata['metadata']
+                multi_datasets={ds:datasets[ds] for ds in multi_metadata['datasets']}
+                with st.expander("Grouped datasets"):
+                    if multi_metadata:
+                        for dataset in multi_metadata['datasets']:
+                            f"- {dataset}"
+                sel_ml=st.radio("Select model *(synthesizer)*:", ("HMA","IRGAN"))
+                if st.button("Fit model"):
+                    if sel_ml=="HMA":
+                        synthesizer = HMASynthesizer(metadata)
+                    elif sel_ml=="IRGAN":
+                        pass
+                    with col2:
+                        with st.spinner('Fitting model, this may take several minutes... Please wait.'):
+                            synthesizer.fit(multi_datasets)
+                            multi_models[sel_ml]=synthesizer
+                            st.session_state['multi_models']=multi_models
+                            sample=synthesizer.sample(num_rows=10)
+                            for ds,df in sample.items():
+                                f"**{ds}** - Generated sample of 10 records using **'{sel_ml}'**"
+                                st.write(df)
+                st.info("**Hint:** Ensure that inter-table relationships are well prepared before modeling.")
+            else:
+                st.error('Please group datasets *(tables)* first.')

@@ -10,7 +10,8 @@ with st.spinner("Loading visualisation libraries, please wait..."):
 datasets=st.session_state['datasets'] if 'datasets' in st.session_state else {}
 single_metadata=st.session_state['single_metadata'] if 'single_metadata' in st.session_state else {}
 multi_metadata=st.session_state['multi_metadata'] if 'multi_metadata' in st.session_state else {}
-models=st.session_state['models'] if 'models' in st.session_state else {}
+single_models=st.session_state['single_models'] if 'single_models' in st.session_state else {}
+multi_models=st.session_state['multi_models'] if 'multi_models' in st.session_state else {}
 syn_datasets=st.session_state['syn_datasets'] if 'syn_datasets' in st.session_state else {}
 with st.sidebar:
     with st.expander("Datasets"):
@@ -21,10 +22,13 @@ with st.sidebar:
             for dataset in multi_metadata['datasets']:
                 f"- {dataset}"
     with st.expander("Fitted Models - Single Table"):
-        for dataset_models in models:
+        for dataset_models in single_models:
             f"{dataset_models}:"
-            for model in models[dataset_models]:
+            for model in single_models[dataset_models]:
                 f"- {model}"
+    with st.expander("Fitted Models - Multiple Tables"):
+        for models in multi_models:
+            f"- {model}"
     with st.expander("Generated Data - Single Table"):
         for syn_dataset in syn_datasets:
             f"{syn_dataset}:"
