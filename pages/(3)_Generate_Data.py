@@ -65,15 +65,16 @@ else:
                         f"**{sel_ds}** - Statistics of generated records using **'{sel_ml}'**"
                         st.write(syn_data.describe(include='all'))
         elif sel_task=="Generate multiple tables":
-            sel_ml = st.radio("Fitted Model:", options=dataset_models.keys())
-            if st.button("Generate"):
-                with col2:
-                    with st.spinner('Generating data, please wait...'):
-                        syn_data=multi_models[sel_ml].sample()
-                    multi_synthetic[sel_ml]=syn_data
-                    st.session_state['multi_synthetic']=multi_synthetic
-                    for ds,df in syn_data.items():
-                        f"**{ds}** - Preview of generated records using **'{sel_ml}'**"
-                        st.write(df.head(3))
-                        f"**{ds}** - Statistics of generated records using **'{sel_ml}'**"
-                        st.write(df.describe())
+            sel_ml = st.radio("Fitted Model:", options=multi_models.keys())
+            if sel_ml:
+                if st.button("Generate"):
+                    with col2:
+                        with st.spinner('Generating data, please wait...'):
+                            syn_data=multi_models[sel_ml].sample()
+                        multi_synthetic[sel_ml]=syn_data
+                        st.session_state['multi_synthetic']=multi_synthetic
+                        for ds,df in syn_data.items():
+                            f"**{ds}** - Preview of generated records using **'{sel_ml}'**"
+                            st.write(df.head(3))
+                            f"**{ds}** - Statistics of generated records using **'{sel_ml}'**"
+                            st.write(df.describe())

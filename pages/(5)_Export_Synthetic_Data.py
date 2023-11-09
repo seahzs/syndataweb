@@ -49,15 +49,20 @@ else:
             if sel_ds:
                 sel_ml = st.radio("Fitted Models:", options=single_synthetic[sel_ds].keys())
                 syn_dataset=single_synthetic[sel_ds][sel_ml]
-            st.download_button("Download CSV file",syn_dataset.to_csv(index=False).encode('utf-8'),f"{sel_ds}_{sel_ml}_single.csv","text/csv",key='download-csv')
+                st.download_button("Download CSV file",syn_dataset.to_csv(index=False).encode('utf-8'),f"{sel_ds}_{sel_ml}_single.csv","text/csv",key='download-csv')
+                with col2:
+                    f"**{sel_ds}** - Preview of generated records using **'{sel_ml}'** *(single table)*"
+                    st.write(syn_dataset.head(3))
+                    f"**{sel_ds}** - Statistics of generated records using **'{sel_ml}'** *(single table)*"
+                    st.write(syn_dataset.describe(include='all'))
         elif sel_syn=="Multiple tables":
             sel_ml = st.radio("Fitted Model:", options=multi_synthetic.keys())
             if sel_ml:
                 sel_ds = st.radio("Synthetic Dataset:", options=multi_synthetic[sel_ml].keys())
                 syn_dataset=multi_synthetic[sel_ml][sel_ds]
-            st.download_button("Download CSV file",syn_dataset.to_csv(index=False).encode('utf-8'),f"{sel_ds}_{sel_ml}_multi.csv","text/csv",key='download-csv')
-        with col2:
-            f"**{sel_ds}** - Preview of generated records using **'{sel_ml}'**"
-            st.write(syn_dataset.head(3))
-            f"**{sel_ds}** - Statistics of generated records using **'{sel_ml}'**"
-            st.write(syn_dataset.describe(include='all'))
+                st.download_button("Download CSV file",syn_dataset.to_csv(index=False).encode('utf-8'),f"{sel_ds}_{sel_ml}_multi.csv","text/csv",key='download-csv')
+                with col2:
+                    f"**{sel_ds}** - Preview of generated records using **'{sel_ml}'** *(multiple tables)*"
+                    st.write(syn_dataset.head(3))
+                    f"**{sel_ds}** - Statistics of generated records using **'{sel_ml}'** *(multiple tables)*"
+                    st.write(syn_dataset.describe(include='all'))
