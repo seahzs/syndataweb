@@ -31,7 +31,7 @@ with st.sidebar:
                 f"- {model_gen}"
 
 #Main Content
-"### Generate (Single Table)"
+"### Generate Data"
 if datasets=={} or single_models=={}:
     st.error('Please load datasets & fit models to continue.')
 else:

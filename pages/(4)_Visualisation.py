@@ -35,7 +35,7 @@ with st.sidebar:
                 f"- {model_gen}"
 
 #Main Content
-"### Visualise Data"
+"### Visualisation"
 if datasets=={}:
     st.error('Please load datasets to continue.')
 else:
