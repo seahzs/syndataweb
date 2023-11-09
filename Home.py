@@ -1,7 +1,7 @@
 import streamlit as st
+st.set_page_config(page_title='Synthetic Data Web App',layout='wide')
 import pandas as pd
 from sdv.metadata import SingleTableMetadata
-st.set_page_config(page_title='Synthetic Data Web App',layout='wide')
 
 # Loads datasets and models from session state and updates sidebar
 datasets=st.session_state['datasets'] if 'datasets' in st.session_state else {}
@@ -24,7 +24,7 @@ with st.sidebar:
             for model in single_models[dataset_models]:
                 f"- {model}"
     with st.expander("Fitted Models - Multiple Tables"):
-        for models in multi_models:
+        for model in multi_models:
             f"- {model}"
     with st.expander("Generated Data - Single Table"):
         for syn_dataset in syn_datasets:

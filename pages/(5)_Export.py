@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 st.set_page_config(page_title='Synthetic Data Web App',layout='wide')
 
 # Loads datasets and models from session state and updates sidebar
@@ -23,7 +22,7 @@ with st.sidebar:
             for model in single_models[dataset_models]:
                 f"- {model}"
     with st.expander("Fitted Models - Multiple Tables"):
-        for models in multi_models:
+        for model in multi_models:
             f"- {model}"
     with st.expander("Generated Data - Single Table"):
         for syn_dataset in syn_datasets:
@@ -32,8 +31,8 @@ with st.sidebar:
                 f"- {model_gen}"
 
 #Main Content
-"### Export (Single Table)"
-if datasets=={} or models=={}:
+"### Export Synthetic Data"
+if datasets=={} or single_models=={}:
     st.error('Please load datasets & fit models to continue.')
 else:
     col1,col2=st.columns([1,3],gap="medium")
@@ -42,7 +41,7 @@ else:
         if sel_ds:
             sel_ml = st.radio("Fitted Model:", options=syn_datasets[sel_ds].keys())
             syn_dataset=syn_datasets[sel_ds][sel_ml]
-        st.download_button("Download as CSV file",syn_dataset.to_csv(index=False).encode('utf-8'),f"{sel_ds}_{sel_ml}.csv","text/csv",key='download-csv')
+        st.download_button("Download CSV file",syn_dataset.to_csv(index=False).encode('utf-8'),f"{sel_ds}_{sel_ml}.csv","text/csv",key='download-csv')
         with col2:
             f"**{sel_ds}** - Preview of generated records using **'{sel_ml}'**"
             st.write(syn_dataset.head(3))

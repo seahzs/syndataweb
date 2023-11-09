@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 st.set_page_config(page_title='Synthetic Data Web App',layout='wide')
 
 with st.spinner("Loading visualisation libraries, please wait..."):
@@ -27,7 +26,7 @@ with st.sidebar:
             for model in single_models[dataset_models]:
                 f"- {model}"
     with st.expander("Fitted Models - Multiple Tables"):
-        for models in multi_models:
+        for model in multi_models:
             f"- {model}"
     with st.expander("Generated Data - Single Table"):
         for syn_dataset in syn_datasets:
@@ -36,7 +35,7 @@ with st.sidebar:
                 f"- {model_gen}"
 
 #Main Content
-"### Visualise (Single Table)"
+"### Visualise Data"
 if datasets=={}:
     st.error('Please load datasets to continue.')
 else:
