@@ -9,7 +9,8 @@ single_metadata=st.session_state['single_metadata'] if 'single_metadata' in st.s
 multi_metadata=st.session_state['multi_metadata'] if 'multi_metadata' in st.session_state else {}
 single_models=st.session_state['single_models'] if 'single_models' in st.session_state else {}
 multi_models=st.session_state['multi_models'] if 'multi_models' in st.session_state else {}
-syn_datasets=st.session_state['syn_datasets'] if 'syn_datasets' in st.session_state else {}
+single_synthetic=st.session_state['single_synthetic'] if 'single_synthetic' in st.session_state else {}
+multi_synthetic=st.session_state['multi_synthetic'] if 'multi_synthetic' in st.session_state else {}
 with st.sidebar:
     with st.expander("Datasets"):
         for dataset in datasets:
@@ -27,12 +28,16 @@ with st.sidebar:
         for model in multi_models:
             f"- {model}"
     with st.expander("Generated Data - Single Table"):
-        for syn_dataset in syn_datasets:
+        for syn_dataset in single_synthetic:
             f"{syn_dataset}:"
-            for model_gen in syn_datasets[syn_dataset]:
-                f"- {model_gen}"
-
-# Guide
+            for model in single_synthetic[syn_dataset]:
+                f"- {model}"
+    with st.expander("Generated Data - Multiple Tables"):
+        for model in multi_synthetic:
+            f"{model}"
+            for dataset in multi_synthetic[model]:
+                f"- {dataset}"
+# Main Content
 "### Generation and Analysis of Synthetic Data"
 "**Workflow:** *Load Data > Prepare > Model > Generate > Visualise > Export*"
 st.info("To begin, please upload datasets first. Ensure that datasets *(tables)* are cleaned, without missing values.")

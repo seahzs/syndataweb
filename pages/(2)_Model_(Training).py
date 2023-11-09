@@ -3,12 +3,13 @@ st.set_page_config(page_title='Synthetic Data Web App',layout='wide')
 import pandas as pd
 
 with st.spinner("Loading ML libraries, please wait..."):
+    from sdv.metadata import MultiTableMetadata
     from sdv.single_table import GaussianCopulaSynthesizer
     from sdv.single_table import CTGANSynthesizer
     from sdv.single_table import CopulaGANSynthesizer
     from sdv.single_table import TVAESynthesizer
     from sdv.multi_table import HMASynthesizer
-    from lib.irgan import SingleIRGANSynthesizer
+    from lib.irgan import SingleIRGANSynthesizer,MultiIRGANSynthesizer
 
 # Loads datasets and models from session state and updates sidebar
 datasets=st.session_state['datasets'] if 'datasets' in st.session_state else {}
@@ -16,7 +17,8 @@ single_metadata=st.session_state['single_metadata'] if 'single_metadata' in st.s
 multi_metadata=st.session_state['multi_metadata'] if 'multi_metadata' in st.session_state else {}
 single_models=st.session_state['single_models'] if 'single_models' in st.session_state else {}
 multi_models=st.session_state['multi_models'] if 'multi_models' in st.session_state else {}
-syn_datasets=st.session_state['syn_datasets'] if 'syn_datasets' in st.session_state else {}
+single_synthetic=st.session_state['single_synthetic'] if 'single_synthetic' in st.session_state else {}
+multi_synthetic=st.session_state['multi_synthetic'] if 'multi_synthetic' in st.session_state else {}
 with st.sidebar:
     with st.expander("Datasets"):
         for dataset in datasets:
@@ -34,10 +36,15 @@ with st.sidebar:
         for model in multi_models:
             f"- {model}"
     with st.expander("Generated Data - Single Table"):
-        for syn_dataset in syn_datasets:
+        for syn_dataset in single_synthetic:
             f"{syn_dataset}:"
-            for model_gen in syn_datasets[syn_dataset]:
-                f"- {model_gen}"
+            for model in single_synthetic[syn_dataset]:
+                f"- {model}"
+    with st.expander("Generated Data - Multiple Tables"):
+        for model in multi_synthetic:
+            f"{model}"
+            for dataset in multi_synthetic[model]:
+                f"- {dataset}"
 
 #Main Content
 "### Model (Training)"
@@ -83,27 +90,26 @@ else:
                 st.info("**Hint:** Ensure that metadata is well prepared before modeling.")
         elif sel_task=="Model multiple tables *(grouped)*":
             if multi_metadata:
-                metadata=multi_metadata['metadata']
+                metadata=MultiTableMetadata.load_from_dict(multi_metadata['metadata'])
                 multi_datasets={ds:datasets[ds] for ds in multi_metadata['datasets']}
                 with st.expander("Grouped datasets"):
                     if multi_metadata:
                         for dataset in multi_metadata['datasets']:
                             f"- {dataset}"
                 sel_ml=st.radio("Select model *(synthesizer)*:", ("HMA","IRGAN"))
+                if sel_ml =='IRGAN':
+                    sel_epochs=st.slider('Epochs (*training cycles*):', 1, 300)
                 if st.button("Fit model"):
                     if sel_ml=="HMA":
                         synthesizer = HMASynthesizer(metadata)
                     elif sel_ml=="IRGAN":
-                        pass
+                        synthesizer = MultiIRGANSynthesizer(multi_metadata['metadata'], epochs=sel_epochs)
                     with col2:
                         with st.spinner('Fitting model, this may take several minutes... Please wait.'):
                             synthesizer.fit(multi_datasets)
                             multi_models[sel_ml]=synthesizer
                             st.session_state['multi_models']=multi_models
-                            sample=synthesizer.sample(num_rows=10)
-                            for ds,df in sample.items():
-                                f"**{ds}** - Generated sample of 10 records using **'{sel_ml}'**"
-                                st.write(df)
+                            st.success(f"Grouped tables has been fitted for {sel_ml}. Please proceed to generate data.")
                 st.info("**Hint:** Ensure that inter-table relationships are well prepared before modeling.")
             else:
                 st.error('Please group datasets *(tables)* first.')
