@@ -44,7 +44,7 @@ with st.sidebar:
 if datasets=={}:
     st.error('Please load datasets to continue.')
 else:
-    col1,col2=st.columns([1,3],gap="medium")
+    col1,col2=st.columns([1,3])
     with col1:
         sel_task=st.radio("Task:", ("Set datatypes", "Set primary key", "Remove primary key", "Drop columns", "Group datasets", "Add inter-table relationship", "Remove inter-table relationship"))
         "---"

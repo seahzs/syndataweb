@@ -1,12 +1,17 @@
-streamlit
-pandas
-numpy
-pyplot
-seaborn
-sdv
-irgan:
-- tensorboard
-- datasynthesizer
-- pandasql
-patch irgan:
-Remove evaluation entries from %AppData%\Python\Python39\site-packages\irg\engine\__init__.py
+streamlit>=1.27.0
+pandas>=1.4.4
+numpy>=1.22.4
+matplotlib>=3.5.3
+seaborn>=0.11.2
+sdv>=1.1.0
+rdt>=1.5.0
+tensorboard>=2.15.1
+datasynthesizer>=0.1.11
+pandasql>=0.7.3
+irg-1.0.0-py3-none-any.whl
+'''
+Must patch irgan:
+- Remove evaluation entries from %AppData%\Python\Python39\site-packages\irg\engine\__init__.py
+
+if streamlit does not run, add to user environment variables path=%AppData%\Python\Python39\Scripts\
+''' 

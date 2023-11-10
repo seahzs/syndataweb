@@ -41,7 +41,7 @@ with st.sidebar:
 "### Generation and Analysis of Synthetic Data"
 "**Workflow:** *Load Data > Prepare > Model > Generate > Visualise > Export*"
 st.info("To begin, please upload datasets first. Ensure that datasets *(tables)* are cleaned, without missing values.")
-col1,col2=st.columns([2,5], gap="medium")
+col1,col2=st.columns([2,5])
 with col1:
     files = st.file_uploader("Select CSV files:", type="csv", accept_multiple_files=True)
     if files:

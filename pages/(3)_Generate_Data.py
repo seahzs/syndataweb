@@ -41,7 +41,7 @@ with st.sidebar:
 if datasets=={} or (single_models=={} and multi_models=={}):
     st.error('Please load datasets & fit models to continue.')
 else:
-    col1,col2=st.columns([1,3],gap="medium")
+    col1,col2=st.columns([1,3])
     with col1:
         sel_task = st.radio("Task:",("Generate single table","Generate multiple tables"))
         "---"

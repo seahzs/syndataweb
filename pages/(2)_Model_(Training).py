@@ -10,6 +10,8 @@ with st.spinner("Loading ML libraries, please wait..."):
     from sdv.single_table import TVAESynthesizer
     from sdv.multi_table import HMASynthesizer
     from lib.irgan import SingleIRGANSynthesizer,MultiIRGANSynthesizer
+    import warnings
+    warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # Loads datasets and models from session state and updates sidebar
 datasets=st.session_state['datasets'] if 'datasets' in st.session_state else {}
@@ -51,7 +53,7 @@ with st.sidebar:
 if datasets=={}:
     st.error('Please load datasets to continue.')
 else:
-    col1,col2=st.columns([1,3],gap="medium")
+    col1,col2=st.columns([1,3])
     with col1:
         sel_task=st.radio("Task:", ("Model single table", "Model multiple tables *(grouped)*"))
         "---"
