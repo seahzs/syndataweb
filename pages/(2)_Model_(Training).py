@@ -50,6 +50,7 @@ with st.sidebar:
 
 #Main Content
 "### Model (Training)"
+#st.write(multi_metadata["metadata"])
 if datasets=={}:
     st.error('Please load datasets to continue.')
 else:

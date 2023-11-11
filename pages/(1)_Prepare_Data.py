@@ -49,26 +49,48 @@ else:
         sel_task=st.radio("Task:", ("Set datatypes", "Set primary key", "Remove primary key", "Drop columns", "Group datasets", "Add inter-table relationship", "Remove inter-table relationship"))
         "---"
         if sel_task in ("Set datatypes", "Set primary key", "Remove primary key", "Drop columns"):
-            sel_ds = st.radio("Select dataset:", options=datasets.keys())
+            sel_ds = st.selectbox("Select dataset:", options=datasets.keys())
             if sel_ds:
                 dataset=datasets[sel_ds]
                 metadata=single_metadata[sel_ds]
                 if sel_task=="Set datatypes":
+                    sel_cols=st.multiselect("Select columns:", dataset.columns)
                     sel_dtype = st.radio("Select datatype:", ('boolean','categorical','datetime','numerical','id','other'))
-                    if sel_dtype == 'other':
+                    if sel_dtype == 'datetime':
+                        dt_format = st.radio("Date-time format:", ('date: yyyy-mm-dd','time: hh:mm:ss',
+                                                                       'both: yyyy-mm-dd hh:mm:ss','default: datetime64'))
+                    if sel_dtype == 'numerical':
+                        num_format = st.radio("Numerical format:", ("integer","float"))
+                    elif sel_dtype == 'other':
                         oth_dtype = st.selectbox("Other Datatype:", ('address','email','ipv4_address','ipv6_address','mac_address','name','phone_number','ssn','user_agent_string'))
                         pii = st.toggle('sensitive info (to anonymize)')
-                    sel_cols=st.multiselect("Select columns:", dataset.columns)
                     if st.button('Set datatype'):
                         if sel_cols:
                             if sel_dtype=='other':
                                 for col in sel_cols:
                                     metadata.update_column(column_name=col, sdtype=oth_dtype, pii=pii)
+                            elif sel_dtype=='datetime':
+                                if dt_format=='default: datetime64':
+                                    for col in sel_cols:
+                                        metadata.update_column(column_name=col, sdtype=sel_dtype)
+                                        dataset[col]=pd.to_datetime(dataset[col])
+                                else:
+                                    dt_map={'date: yyyy-mm-dd':"%Y-%m-%d",'time: hh:mm:ss':"%H:%M:%S",
+                                            'both: yyyy-mm-dd hh:mm:ss':"%Y-%m-%d %H:%M:%S"}
+                                    for col in sel_cols:
+                                        metadata.update_column(column_name=col, sdtype=sel_dtype, datetime_format=dt_map[dt_format])
+                                        dataset[col]=pd.to_datetime(dataset[col]).dt.strftime(dt_map[dt_format])
+                            elif sel_dtype=='numerical':
+                                for col in sel_cols:
+                                    dataset[col]=dataset[col].astype({"integer":"Int64","float":"Float64"}[num_format])
+                                    metadata.update_column(column_name=col, sdtype=sel_dtype)
                             else:
                                 for col in sel_cols:
                                     metadata.update_column(column_name=col, sdtype=sel_dtype)
                         single_metadata[sel_ds]=metadata
                         st.session_state['single_metadata']=single_metadata
+                        datasets[sel_ds]=dataset
+                        st.session_state['datasets']=datasets
                         if multi_metadata and sel_ds in multi_metadata["datasets"]:
                             multi_metadata["metadata"]["tables"][sel_ds]={k:v for (k,v) in single_metadata[sel_ds].to_dict().items() if k!="METADATA_SPEC_VERSION"}
                             st.session_state['multi_metadata']=multi_metadata
@@ -113,8 +135,11 @@ else:
                 st.write(dataset.head())
                 f"**{sel_ds}** - Datatypes (*metadata*)"
                 st.write(pd.DataFrame.from_dict(metadata.columns))
+                f"**{sel_ds}** - Datatypes (*table*)"
+                st.write(dataset.dtypes.to_frame().rename(columns={0:"sdtype"}).transpose())
                 if 'primary_key' in metadata.to_dict():
                     st.info(f"Primary key of '{sel_ds}' is set as *'{metadata.to_dict()['primary_key']}'*")
+                
         elif sel_task == "Group datasets":
             st.warning("**Warning:** Please set up datatypes and primary keys before grouping. Existing grouping will be replaced.")
             sel_multi_ds = st.multiselect("Select ≥2 datasets *(tables)* to group:", options=datasets.keys())

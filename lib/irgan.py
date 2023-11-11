@@ -64,14 +64,20 @@ class MultiIRGANSynthesizer():
         self.directory='./irgan/multi/'
         shutil.rmtree(self.directory, ignore_errors=True)
         self.irgan_meta={}
-        for table_name in self.metadata["tables"].keys():
-            self.irgan_meta[table_name]={"id_cols": [],"attributes": {},"primary_keys": [],"format": "pickle"}
-            if 'primary_key' in self.metadata["tables"][table_name]:
-                self.irgan_meta[table_name]["primary_keys"].append(self.metadata["tables"][table_name]['primary_key'])
-            for (col,dtype) in self.metadata["tables"][table_name]['columns'].items():
+        for table_name,table_meta in self.metadata["tables"].items():
+            self.irgan_meta[table_name]={"id_cols": [],"attributes": {},"primary_keys": [],"foreign_keys": [],"format": "pickle"}
+            if 'primary_key' in table_meta:
+                self.irgan_meta[table_name]["primary_keys"].append(table_meta['primary_key'])
+            for (col,dtype) in table_meta['columns'].items():
                 if dtype["sdtype"]=="id":
                     self.irgan_meta[table_name]["id_cols"].append(col)
-                self.irgan_meta[table_name]["attributes"][col]={"name":col,"type":dtype["sdtype"]}
+                if dtype["sdtype"]=="datetime":
+                    self.irgan_meta[table_name]["attributes"][col]={"name":col,"type":dtype["sdtype"],"date_format":''}
+                else:
+                    self.irgan_meta[table_name]["attributes"][col]={"name":col,"type":dtype["sdtype"]}
+        # for rship in self.metadata["relationships"]:
+        #     self.irgan_meta[rship["child_table_name"]]["foreign_keys"].append({"columns": [rship["child_foreign_key"]],
+        #                                                                        "parent": rship["parent_table_name"]})
     def fit(self, datasets):
         self.table_names=datasets.keys()
         shutil.rmtree(self.directory, ignore_errors=True)
@@ -85,6 +91,10 @@ class MultiIRGANSynthesizer():
                                         data_dir=f'{self.directory}/data', 
                                         temp_cache=f'{self.directory}/out/temp',
                                         mtype='affecting')
+        # self.augmented_db = irgan.augment(file_path='./irgan/alset_config.json', 
+        #                                 data_dir=f'{self.directory}/data', 
+        #                                 temp_cache=f'{self.directory}/out/temp',
+        #                                 mtype='affecting')
         self.tab_models, self.deg_models = irgan.train(
             database=self.augmented_db, do_train=True,
             tab_trainer_args={table_name: {'trainer_type': 'CTGAN', 'embedding_dim': 128, 'gen_optim_lr': 2e-4, 'disc_optim_lr': 2e-4,
