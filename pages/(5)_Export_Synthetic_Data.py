@@ -17,20 +17,20 @@ with st.sidebar:
         if multi_metadata:
             for dataset in multi_metadata['datasets']:
                 f"- {dataset}"
-    with st.expander("Fitted Models - Single Table"):
+    with st.expander("Fitted Single Tables"):
         for dataset_models in single_models:
             f"{dataset_models}:"
             for model in single_models[dataset_models]:
                 f"- {model}"
-    with st.expander("Fitted Models - Multiple Tables"):
+    with st.expander("Fitted Multiple Tables"):
         for model in multi_models:
             f"- {model}"
-    with st.expander("Generated Data - Single Table"):
+    with st.expander("Generated Single Table"):
         for syn_dataset in single_synthetic:
             f"{syn_dataset}:"
             for model in single_synthetic[syn_dataset]:
                 f"- {model}"
-    with st.expander("Generated Data - Multiple Tables"):
+    with st.expander("Generated Multiple Tables"):
         for model in multi_synthetic:
             f"{model}"
             for dataset in multi_synthetic[model]:
@@ -49,20 +49,25 @@ else:
             if sel_ds:
                 sel_ml = st.radio("Fitted Models:", options=single_synthetic[sel_ds].keys())
                 syn_dataset=single_synthetic[sel_ds][sel_ml]
-                st.download_button("Download CSV file",syn_dataset.to_csv(index=False).encode('utf-8'),f"{sel_ds}_{sel_ml}_single.csv","text/csv",key='download-csv')
                 with col2:
-                    f"**{sel_ds}** - Preview of generated records using **'{sel_ml}'** *(single table)*"
-                    st.write(syn_dataset.head(3))
-                    f"**{sel_ds}** - Statistics of generated records using **'{sel_ml}'** *(single table)*"
+                    st.download_button(f"Download '{sel_ds}'",syn_dataset.to_csv(index=False).encode('utf-8'),f"{sel_ds}_{sel_ml}_single.csv","text/csv",key='download-csv')
+                    f"**{sel_ds}** - Generated using **'{sel_ml}'** *(single table)*"
+                    "Preview:"
+                    st.write(syn_dataset.head())
+                    "Statistics:"
                     st.write(syn_dataset.describe(include='all'))
         elif sel_syn=="Multiple tables":
             sel_ml = st.radio("Fitted Model:", options=multi_synthetic.keys())
-            if sel_ml:
-                sel_ds = st.radio("Synthetic Dataset:", options=multi_synthetic[sel_ml].keys())
-                syn_dataset=multi_synthetic[sel_ml][sel_ds]
-                st.download_button("Download CSV file",syn_dataset.to_csv(index=False).encode('utf-8'),f"{sel_ds}_{sel_ml}_multi.csv","text/csv",key='download-csv')
-                with col2:
-                    f"**{sel_ds}** - Preview of generated records using **'{sel_ml}'** *(multiple tables)*"
-                    st.write(syn_dataset.head(3))
-                    f"**{sel_ds}** - Statistics of generated records using **'{sel_ml}'** *(multiple tables)*"
-                    st.write(syn_dataset.describe(include='all'))
+            with col2:
+                if sel_ml:
+                    for sel_ds,syn_dataset in multi_synthetic[sel_ml].items():
+                        colA,colB=st.columns([3,1])
+                        with colA:
+                            f"**{sel_ds}** - Generated using **'{sel_ml}'** *(multiple tables)*"
+                            "Preview:"
+                            st.write(syn_dataset.head())
+                            st.download_button(f"Download '{sel_ds}'",syn_dataset.to_csv(index=False).encode('utf-8'),f"{sel_ds}_{sel_ml}_multi.csv","text/csv",key=f'download-{sel_ds}')
+                        with colB:
+                            "Statistics:"
+                            st.write(syn_dataset.describe())
+                        "---"

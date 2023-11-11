@@ -29,20 +29,20 @@ with st.sidebar:
         if multi_metadata:
             for dataset in multi_metadata['datasets']:
                 f"- {dataset}"
-    with st.expander("Fitted Models - Single Table"):
+    with st.expander("Fitted Single Tables"):
         for dataset_models in single_models:
             f"{dataset_models}:"
             for model in single_models[dataset_models]:
                 f"- {model}"
-    with st.expander("Fitted Models - Multiple Tables"):
+    with st.expander("Fitted Multiple Tables"):
         for model in multi_models:
             f"- {model}"
-    with st.expander("Generated Data - Single Table"):
+    with st.expander("Generated Single Table"):
         for syn_dataset in single_synthetic:
             f"{syn_dataset}:"
             for model in single_synthetic[syn_dataset]:
                 f"- {model}"
-    with st.expander("Generated Data - Multiple Tables"):
+    with st.expander("Generated Multiple Tables"):
         for model in multi_synthetic:
             f"{model}"
             for dataset in multi_synthetic[model]:
@@ -59,17 +59,17 @@ else:
         sel_task=st.radio("Task:", ("Model single table", "Model multiple tables *(grouped)*"))
         "---"
         if sel_task=="Model single table":
-            sel_ds = st.radio("Select dataset:", options=datasets.keys())
+            sel_ds = st.selectbox("Select dataset:", options=datasets.keys())
             if sel_ds:
                 dataset=datasets[sel_ds]
                 metadata = single_metadata[sel_ds]
                 with st.expander("Show metadata (*datatypes*):"):
                     if 'primary_key' in metadata.to_dict():
                         f"Primary key: *'{metadata.to_dict()['primary_key']}'*"
-                    st.write(pd.DataFrame.from_dict(metadata.columns).transpose())
+                    st.write(pd.DataFrame.from_dict(metadata.columns).transpose().reset_index())
                 sel_ml=st.radio("Select model *(synthesizer)*:", ("Copula GAN","CTGAN","Gaussian Copula",'TVAE','IRGAN'))
                 if sel_ml in ("Copula GAN","CTGAN",'TVAE','IRGAN'):
-                    sel_epochs=st.slider('Epochs (*training cycles*):', 1, 300)
+                    sel_epochs=st.number_input('Epochs (*training cycles*):', value=1, format="%i", min_value=1)
                 if st.button("Fit model"):
                     if sel_ml=="Gaussian Copula":
                         synthesizer = GaussianCopulaSynthesizer(metadata)
@@ -101,7 +101,7 @@ else:
                             f"- {dataset}"
                 sel_ml=st.radio("Select model *(synthesizer)*:", ("HMA","IRGAN"))
                 if sel_ml =='IRGAN':
-                    sel_epochs=st.slider('Epochs (*training cycles*):', 1, 300)
+                    sel_epochs=st.number_input('Epochs (*training cycles*):', value=1, format="%i", min_value=1)
                 if st.button("Fit model"):
                     if sel_ml=="HMA":
                         synthesizer = HMASynthesizer(metadata)

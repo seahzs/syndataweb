@@ -20,20 +20,20 @@ with st.sidebar:
         if multi_metadata:
             for dataset in multi_metadata['datasets']:
                 f"- {dataset}"
-    with st.expander("Fitted Models - Single Table"):
+    with st.expander("Fitted Single Tables"):
         for dataset_models in single_models:
             f"{dataset_models}:"
             for model in single_models[dataset_models]:
                 f"- {model}"
-    with st.expander("Fitted Models - Multiple Tables"):
+    with st.expander("Fitted Multiple Tables"):
         for model in multi_models:
             f"- {model}"
-    with st.expander("Generated Data - Single Table"):
+    with st.expander("Generated Single Table"):
         for syn_dataset in single_synthetic:
             f"{syn_dataset}:"
             for model in single_synthetic[syn_dataset]:
                 f"- {model}"
-    with st.expander("Generated Data - Multiple Tables"):
+    with st.expander("Generated Multiple Tables"):
         for model in multi_synthetic:
             f"{model}"
             for dataset in multi_synthetic[model]:
@@ -46,7 +46,8 @@ if datasets=={}:
 else:
     col1,col2=st.columns([1,3])
     with col1:
-        sel_task=st.radio("Task:", ("Set datatypes", "Set primary key", "Remove primary key", "Drop columns", "Group datasets", "Add inter-table relationship", "Remove inter-table relationship"))
+        sel_task=st.radio("Task:", ("Set datatypes", "Set primary key", "Remove primary key", "Drop columns", 
+                                    "Group datasets", "Add inter-table relationship", "Remove inter-table relationship"))
         "---"
         if sel_task in ("Set datatypes", "Set primary key", "Remove primary key", "Drop columns"):
             sel_ds = st.selectbox("Select dataset:", options=datasets.keys())
@@ -57,12 +58,13 @@ else:
                     sel_cols=st.multiselect("Select columns:", dataset.columns)
                     sel_dtype = st.radio("Select datatype:", ('boolean','categorical','datetime','numerical','id','other'))
                     if sel_dtype == 'datetime':
-                        dt_format = st.radio("Date-time format:", ('date: yyyy-mm-dd','time: hh:mm:ss',
-                                                                       'both: yyyy-mm-dd hh:mm:ss','default: datetime64'))
+                        dt_format = st.radio("Date-time format:", ("default: datetime64","date: yyyy-mm-dd","time: hh:mm:ss",
+                                                                       "both: yyyy-mm-dd hh:mm:ss"))
                     if sel_dtype == 'numerical':
                         num_format = st.radio("Numerical format:", ("integer","float"))
                     elif sel_dtype == 'other':
-                        oth_dtype = st.selectbox("Other Datatype:", ('address','email','ipv4_address','ipv6_address','mac_address','name','phone_number','ssn','user_agent_string'))
+                        oth_dtype = st.selectbox("Other Datatype:", ('address','email','ipv4_address','ipv6_address','mac_address',
+                                                                     'name','phone_number','ssn','user_agent_string'))
                         pii = st.toggle('sensitive info (to anonymize)')
                     if st.button('Set datatype'):
                         if sel_cols:
@@ -96,7 +98,8 @@ else:
                             st.session_state['multi_metadata']=multi_metadata
                     st.info("**Hint:** Change all date/time columns to *'datetime'* datatype.")
                 elif sel_task=="Set primary key":
-                    pri_key_dtypes=('id','address','email','ipv4_address','ipv6_address','mac_address','name','phone_number','ssn','user_agent_string')
+                    pri_key_dtypes=('id','address','email','ipv4_address','ipv6_address',
+                                    'mac_address','name','phone_number','ssn','user_agent_string')
                     sel_key=st.selectbox("Select column:", [col for (col,dtype) in metadata.to_dict()["columns"].items() if dtype["sdtype"] in pri_key_dtypes] )
                     if st.button('Set primary key'):
                         metadata.set_primary_key(sel_key)
@@ -135,7 +138,7 @@ else:
                 st.write(dataset.head())
                 f"**{sel_ds}** - Datatypes (*metadata*)"
                 st.write(pd.DataFrame.from_dict(metadata.columns))
-                f"**{sel_ds}** - Datatypes (*table*)"
+                f"**{sel_ds}** - Datatypes (*dataframe table*)"
                 st.write(dataset.dtypes.to_frame().rename(columns={0:"sdtype"}).transpose())
                 if 'primary_key' in metadata.to_dict():
                     st.info(f"Primary key of '{sel_ds}' is set as *'{metadata.to_dict()['primary_key']}'*")

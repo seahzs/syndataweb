@@ -22,20 +22,20 @@ with st.sidebar:
         if multi_metadata:
             for dataset in multi_metadata['datasets']:
                 f"- {dataset}"
-    with st.expander("Fitted Models - Single Table"):
+    with st.expander("Fitted Single Tables"):
         for dataset_models in single_models:
             f"{dataset_models}:"
             for model in single_models[dataset_models]:
                 f"- {model}"
-    with st.expander("Fitted Models - Multiple Tables"):
+    with st.expander("Fitted Multiple Tables"):
         for model in multi_models:
             f"- {model}"
-    with st.expander("Generated Data - Single Table"):
+    with st.expander("Generated Single Table"):
         for syn_dataset in single_synthetic:
             f"{syn_dataset}:"
             for model in single_synthetic[syn_dataset]:
                 f"- {model}"
-    with st.expander("Generated Data - Multiple Tables"):
+    with st.expander("Generated Multiple Tables"):
         for model in multi_synthetic:
             f"{model}"
             for dataset in multi_synthetic[model]:

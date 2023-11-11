@@ -15,12 +15,15 @@ class SingleIRGANSynthesizer():
         self.directory=f'./irgan/single/{self.table_name}'
         shutil.rmtree(self.directory, ignore_errors=True)
         self.irgan_meta={self.table_name:{"id_cols": [],"attributes": {},"primary_keys": [],"format": "pickle"}}
+        for (col,dtype) in self.metadata.columns.items():
+            if dtype["sdtype"]=="datetime" and "datetime_format" in dtype.keys():
+                self.irgan_meta[self.table_name]["attributes"][col]={"name":col,"type":dtype["sdtype"],"date_format":dtype["datetime_format"]}
+            else:
+                if dtype["sdtype"]=="id":
+                    self.irgan_meta[self.table_name]["id_cols"].append(col)
+                self.irgan_meta[self.table_name]["attributes"][col]={"name":col,"type":dtype["sdtype"]}
         if 'primary_key' in self.metadata.to_dict():
             self.irgan_meta[self.table_name]["primary_keys"].append(self.metadata.primary_key)
-        for (col,dtype) in self.metadata.columns.items():
-            if dtype["sdtype"]=="id":
-                self.irgan_meta[self.table_name]["id_cols"].append(col)
-            self.irgan_meta[self.table_name]["attributes"][col]={"name":col,"type":dtype["sdtype"]}
     def fit(self, dataset):
         self.dataset_size=dataset.shape[0]
         shutil.rmtree(self.directory, ignore_errors=True)
@@ -59,22 +62,22 @@ class SingleIRGANSynthesizer():
 class MultiIRGANSynthesizer():
     def __init__(self, metadata, epochs):
         self.metadata = metadata
-        self.table_names = {}
+        self.table_names = []
         self.epochs = epochs
         self.directory='./irgan/multi/'
         shutil.rmtree(self.directory, ignore_errors=True)
         self.irgan_meta={}
         for table_name,table_meta in self.metadata["tables"].items():
             self.irgan_meta[table_name]={"id_cols": [],"attributes": {},"primary_keys": [],"foreign_keys": [],"format": "pickle"}
+            for (col,dtype) in table_meta['columns'].items():
+                if dtype["sdtype"]=="datetime" and "datetime_format" in dtype.keys():
+                    self.irgan_meta[table_name]["attributes"][col]={"name":col,"type":dtype["sdtype"],"date_format":dtype["datetime_format"]}
+                else:
+                    if dtype["sdtype"]=="id":
+                        self.irgan_meta[table_name]["id_cols"].append(col)
+                    self.irgan_meta[table_name]["attributes"][col]={"name":col,"type":dtype["sdtype"]}
             if 'primary_key' in table_meta:
                 self.irgan_meta[table_name]["primary_keys"].append(table_meta['primary_key'])
-            for (col,dtype) in table_meta['columns'].items():
-                if dtype["sdtype"]=="id":
-                    self.irgan_meta[table_name]["id_cols"].append(col)
-                if dtype["sdtype"]=="datetime":
-                    self.irgan_meta[table_name]["attributes"][col]={"name":col,"type":dtype["sdtype"],"date_format":''}
-                else:
-                    self.irgan_meta[table_name]["attributes"][col]={"name":col,"type":dtype["sdtype"]}
         # for rship in self.metadata["relationships"]:
         #     self.irgan_meta[rship["child_table_name"]]["foreign_keys"].append({"columns": [rship["child_foreign_key"]],
         #                                                                        "parent": rship["parent_table_name"]})
@@ -91,10 +94,6 @@ class MultiIRGANSynthesizer():
                                         data_dir=f'{self.directory}/data', 
                                         temp_cache=f'{self.directory}/out/temp',
                                         mtype='affecting')
-        # self.augmented_db = irgan.augment(file_path='./irgan/alset_config.json', 
-        #                                 data_dir=f'{self.directory}/data', 
-        #                                 temp_cache=f'{self.directory}/out/temp',
-        #                                 mtype='affecting')
         self.tab_models, self.deg_models = irgan.train(
             database=self.augmented_db, do_train=True,
             tab_trainer_args={table_name: {'trainer_type': 'CTGAN', 'embedding_dim': 128, 'gen_optim_lr': 2e-4, 'disc_optim_lr': 2e-4,
@@ -110,12 +109,13 @@ class MultiIRGANSynthesizer():
             tab_train_args={table_name: {'epochs': self.epochs, 'batch_size': 200, 'save_freq': 100000} for table_name in self.table_names},
             deg_train_args={table_name: {'epochs': self.epochs, 'batch_size': 200, 'save_freq': 100000} for table_name in self.table_names}, 
             ser_train_args={})
-    def sample(self):
+    def sample(self, scaling):
         self.syn_db = irgan.generate(
             real_db=self.augmented_db, tab_models=self.tab_models, deg_models=self.deg_models,
             save_to=f'{self.directory}/out/generated',
             tab_batch_sizes={table_name: 200 for table_name in self.table_names}, 
             deg_batch_sizes={},
+            scaling={table_name:scaling for table_name in self.table_names},
             save_db_to=f'{self.directory}/out/fake_db', 
             temp_cache=f'{self.directory}/out/temp')
         result={table_name: pd.read_csv(f'{self.directory}/out/generated/{table_name}.csv') for table_name in self.table_names}

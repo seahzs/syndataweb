@@ -17,20 +17,20 @@ with st.sidebar:
         if multi_metadata:
             for dataset in multi_metadata['datasets']:
                 f"- {dataset}"
-    with st.expander("Fitted Models - Single Table"):
+    with st.expander("Fitted Single Tables"):
         for dataset_models in single_models:
             f"{dataset_models}:"
             for model in single_models[dataset_models]:
                 f"- {model}"
-    with st.expander("Fitted Models - Multiple Tables"):
+    with st.expander("Fitted Multiple Tables"):
         for model in multi_models:
             f"- {model}"
-    with st.expander("Generated Data - Single Table"):
+    with st.expander("Generated Single Table"):
         for syn_dataset in single_synthetic:
             f"{syn_dataset}:"
             for model in single_synthetic[syn_dataset]:
                 f"- {model}"
-    with st.expander("Generated Data - Multiple Tables"):
+    with st.expander("Generated Multiple Tables"):
         for model in multi_synthetic:
             f"{model}"
             for dataset in multi_synthetic[model]:
@@ -65,16 +65,32 @@ else:
                         f"**{sel_ds}** - Statistics of generated records using **'{sel_ml}'**"
                         st.write(syn_data.describe(include='all'))
         elif sel_task=="Generate multiple tables":
+            with st.expander("Grouped datasets"):
+                if multi_metadata:
+                    for dataset in multi_metadata['datasets']:
+                        f"- {dataset}"
             sel_ml = st.radio("Fitted Model:", options=multi_models.keys())
+            if sel_ml=="HMA":
+                st.info("**Hint:** Scaling is not available (generated data has same number of records as original).")
+            elif sel_ml=="IRGAN":
+                sel_scaling=st.number_input(f"Scaling (in multiples of the original records):", value=1, format="%i", min_value=0)
             if sel_ml:
                 if st.button("Generate"):
                     with col2:
                         with st.spinner('Generating data, please wait...'):
-                            syn_data=multi_models[sel_ml].sample()
+                            if sel_ml=="HMA":
+                                syn_data=multi_models[sel_ml].sample()
+                            elif sel_ml=="IRGAN":
+                                syn_data=multi_models[sel_ml].sample(scaling=sel_scaling)
                         multi_synthetic[sel_ml]=syn_data
                         st.session_state['multi_synthetic']=multi_synthetic
                         for ds,df in syn_data.items():
-                            f"**{ds}** - Preview of generated records using **'{sel_ml}'**"
-                            st.write(df.head(3))
-                            f"**{ds}** - Statistics of generated records using **'{sel_ml}'**"
-                            st.write(df.describe())
+                            colA,colB=st.columns([3,1])
+                            with colA:
+                                f"**{ds}** - Generated using **'{sel_ml}'** *(multiple tables)*"
+                                "Preview:"
+                                st.write(df.head())
+                            with colB:
+                                "Statistics:"
+                                st.write(df.describe())
+                            "---"
