@@ -8,7 +8,7 @@ rdt==1.5.0
 tensorboard==2.15.1
 datasynthesizer==0.1.13
 pandasql==0.7.3
-irg @ https://github.com/seahzs/syndataweb/blob/main/irg-1.0.0-py3-none-any.whl?raw=true
+https://github.com/seahzs/syndataweb/blob/main/irg-1.0.0-py3-none-any.whl?raw=true
 #irg-1.0.0-py3-none-any.whl
 # Must patch irgan:
 # - Remove evaluation entries from %AppData%\Python\Python39\site-packages\irg\engine\__init__.py
