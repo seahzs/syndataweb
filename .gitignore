@@ -1,3 +1,4 @@
 #directories
 irgan/
 lib/__pycache__
+upload/*

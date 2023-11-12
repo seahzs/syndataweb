@@ -1,17 +1,16 @@
-streamlit>=1.27.0
-pandas>=1.4.4
-numpy>=1.22.4
-matplotlib>=3.5.3
-seaborn>=0.11.2
-sdv>=1.1.0
-rdt>=1.5.0
-tensorboard>=2.15.1
-datasynthesizer>=0.1.11
-pandasql>=0.7.3
-irg-1.0.0-py3-none-any.whl
-'''
-Must patch irgan:
-- Remove evaluation entries from %AppData%\Python\Python39\site-packages\irg\engine\__init__.py
+streamlit==1.27.0
+pandas==1.5.3
+numpy==1.24.3
+matplotlib==3.7.1
+seaborn==0.12.2
+sdv==1.1.0
+rdt==1.5.0
+tensorboard==2.15.1
+datasynthesizer==0.1.13
+pandasql==0.7.3
+#irgv2 @ https://github.com/lll-jy/irgv2/
+#irg-1.0.0-py3-none-any.whl
+# Must patch irgan:
+# - Remove evaluation entries from %AppData%\Python\Python39\site-packages\irg\engine\__init__.py
 
-if streamlit does not run, add to user environment variables path=%AppData%\Python\Python39\Scripts\
-''' 
+# if streamlit does not run, add to user environment variables path=%AppData%\Python\Python39\Scripts\
