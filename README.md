@@ -6,7 +6,7 @@ This project is a web app for generating synthetic data using ```single table```
 - Run ```streamlit run Home.py``` to start the local web server.
 - Launch web browser and go to [localhost:8501](http://localhost:8501) or [127.0.0.1:8501](http://127.0.0.1:8501)
 - It is recommended to have a system with at least 16GB of memory.
-- The configuration and uploaded data of each session will be reset when the page is refreshed or the browser is restared. 
+- The configuration and uploaded data of each session will be reset when the page is reloaded. 
 > **Warning: Some data may remain in the local folder ```./irgan``` when the IRGAN model is used for data generation.**
 
 ## Online demo
