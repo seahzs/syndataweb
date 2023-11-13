@@ -11,8 +11,10 @@ This project is a web app for generating synthetic data using ```single table```
 
 ## Online demo
 - Go to https://syndataweb.streamlit.app/
-- Note that this app is hosted on a third-party server for demonstration purposes only. 
+- This app is hosted on a third-party server for demonstration purposes only. 
 > **Warning: Do not upload any confidential or sensitive data!**
+- The online demo may crash if the data is too big or if processing takes too long causing a time-out.
+- Click on the menu at the bottom-right to restart the app if there are issues.
 
 ## Usage Instructions
 ### To begin: Uploading Real Data
