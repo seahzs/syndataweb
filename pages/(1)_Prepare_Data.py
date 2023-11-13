@@ -46,15 +46,15 @@ if datasets=={}:
 else:
     col1,col2=st.columns([1,3])
     with col1:
-        sel_task=st.radio("Task:", ("Set datatypes", "Set/remove primary key", "Drop columns", 
+        sel_task=st.radio("Task:", ("Set datatype", "Set/remove primary key", "Drop column", 
                                     "Group tables", "Add/remove inter-table relationship"))
         "---"
-        if sel_task in ("Set datatypes", "Set/remove primary key", "Drop columns"):
+        if sel_task in ("Set datatype", "Set/remove primary key", "Drop column"):
             sel_ds = st.selectbox("Select table:", options=datasets.keys())
             if sel_ds:
                 dataset=datasets[sel_ds]
                 metadata=single_metadata[sel_ds]
-                if sel_task=="Set datatypes":
+                if sel_task=="Set datatype":
                     sel_cols=st.multiselect("Select columns:", dataset.columns)
                     sel_dtype = st.radio("Select datatype:", ('boolean','categorical','datetime','numerical','id','other'))
                     if sel_dtype == 'datetime':
@@ -122,7 +122,7 @@ else:
                             st.session_state['multi_metadata']=multi_metadata
                         st.success("Primary key updated.")
                     st.info("**Hint:** Set column datatype as 'id' or 'others' in order to be used as primary key.")
-                elif sel_task=="Drop columns":
+                elif sel_task=="Drop column":
                     to_drop=st.multiselect("Select columns:", dataset.columns)
                     if st.button('Drop columns'):
                         dataset=dataset.drop(columns=to_drop)

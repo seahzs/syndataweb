@@ -38,9 +38,14 @@ with st.sidebar:
             for dataset in multi_synthetic[model]:
                 f"- {dataset}"
 # Main Content
-"### Generation and Analysis of Synthetic Data"
-"**Workflow:** *Load Data > Prepare > Model > Generate > Visualise > Export*"
+"### Synthetic Data Web App"
+colA,colB = st.columns(2)
+with colA:
+    "**Workflow:** *Load Data > Prepare > Model > Generate > Visualise > Export*"
+with colB:
+    "**Documentation on Github:** https://github.com/seahzs/syndataweb/"
 st.info("To begin, please upload tables first. Ensure that data is well-prepared with headers and no missing values.")
+"### Upload data"
 col1,col2=st.columns([2,5])
 with col1:
     files = st.file_uploader("Select CSV files:", type="csv", accept_multiple_files=True)

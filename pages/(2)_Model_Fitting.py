@@ -49,14 +49,14 @@ with st.sidebar:
                 f"- {dataset}"
 
 #Main Content
-"### Model (Training)"
+"### Model Fitting"
 #st.write(multi_metadata["metadata"])
 if datasets=={}:
     st.error('Please load tables to continue.')
 else:
     col1,col2=st.columns([1,3])
     with col1:
-        sel_task=st.radio("Task:", ("Model single table", "Model multiple tables *(grouped)*"))
+        sel_task=st.radio("Task:", ("Fit single table", "Fit multiple tables *(grouped)*"))
         "---"
         if sel_task=="Model single table":
             sel_ds = st.selectbox("Select table:", options=datasets.keys())
