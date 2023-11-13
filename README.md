@@ -1,14 +1,15 @@
 # syndataweb
-Web UI for Synthetic Data Generation
+This project is a web app for generating synthetic data using single table and multi table models from SDV, including [IRGAN](https://github.com/lll-jy/irgv2) developed by Li Jiayu. 
 
 ## Local deployment
 - Install all dependencies stated in requirements.txt using ```pip install -r requirements.txt``` 
 - Run ```streamlit run Home.py``` to start local web server 
 - Launch web browser and go to [localhost:8501](http://localhost:8501) or [127.0.0.1:8501](http://127.0.0.1:8501)
 
-## Online version
+## Online demo
 - Go to https://syndataweb.streamlit.app/
-- Note that this app is hosted on a third-party server for demonstration purposes. **Warning: Do not upload any confidential or sensitive data!**
+- Note that this app is hosted on a third-party server for demonstration purposes only. 
+> **Warning: Do not upload any confidential or sensitive data!**
 
 ## Usage Instructions
 ### Step 1: Uploading Real Data
