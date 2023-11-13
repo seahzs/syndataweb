@@ -22,10 +22,10 @@ multi_models=st.session_state['multi_models'] if 'multi_models' in st.session_st
 single_synthetic=st.session_state['single_synthetic'] if 'single_synthetic' in st.session_state else {}
 multi_synthetic=st.session_state['multi_synthetic'] if 'multi_synthetic' in st.session_state else {}
 with st.sidebar:
-    with st.expander("Datasets"):
+    with st.expander("Tables"):
         for dataset in datasets:
             f"- {dataset}"
-    with st.expander("Grouped Datasets"):
+    with st.expander("Grouped Tables"):
         if multi_metadata:
             for dataset in multi_metadata['datasets']:
                 f"- {dataset}"
@@ -52,14 +52,14 @@ with st.sidebar:
 "### Model (Training)"
 #st.write(multi_metadata["metadata"])
 if datasets=={}:
-    st.error('Please load datasets to continue.')
+    st.error('Please load tables to continue.')
 else:
     col1,col2=st.columns([1,3])
     with col1:
         sel_task=st.radio("Task:", ("Model single table", "Model multiple tables *(grouped)*"))
         "---"
         if sel_task=="Model single table":
-            sel_ds = st.selectbox("Select dataset:", options=datasets.keys())
+            sel_ds = st.selectbox("Select table:", options=datasets.keys())
             if sel_ds:
                 dataset=datasets[sel_ds]
                 metadata = single_metadata[sel_ds]
@@ -95,7 +95,7 @@ else:
             if multi_metadata:
                 metadata=MultiTableMetadata.load_from_dict(multi_metadata['metadata'])
                 multi_datasets={ds:datasets[ds] for ds in multi_metadata['datasets']}
-                with st.expander("Grouped datasets"):
+                with st.expander("Grouped tables"):
                     if multi_metadata:
                         for dataset in multi_metadata['datasets']:
                             f"- {dataset}"
@@ -115,4 +115,4 @@ else:
                             st.success(f"Grouped tables has been fitted for {sel_ml}. Please proceed to generate data.")
                 st.info("**Hint:** Ensure that inter-table relationships are well prepared before modeling.")
             else:
-                st.error('Please group datasets *(tables)* first.')
+                st.error('Please group tables first.')

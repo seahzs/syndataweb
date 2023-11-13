@@ -12,10 +12,10 @@ multi_models=st.session_state['multi_models'] if 'multi_models' in st.session_st
 single_synthetic=st.session_state['single_synthetic'] if 'single_synthetic' in st.session_state else {}
 multi_synthetic=st.session_state['multi_synthetic'] if 'multi_synthetic' in st.session_state else {}
 with st.sidebar:
-    with st.expander("Datasets"):
+    with st.expander("Tables"):
         for dataset in datasets:
             f"- {dataset}"
-    with st.expander("Grouped Datasets"):
+    with st.expander("Grouped Tables"):
         if multi_metadata:
             for dataset in multi_metadata['datasets']:
                 f"- {dataset}"
@@ -40,10 +40,11 @@ with st.sidebar:
 # Main Content
 "### Generation and Analysis of Synthetic Data"
 "**Workflow:** *Load Data > Prepare > Model > Generate > Visualise > Export*"
-st.info("To begin, please upload datasets first. Ensure that datasets *(tables)* are cleaned, without missing values.")
+st.info("To begin, please upload tables first. Ensure that data is well-prepared with headers and no missing values.")
 col1,col2=st.columns([2,5])
 with col1:
     files = st.file_uploader("Select CSV files:", type="csv", accept_multiple_files=True)
+    "---"
     if files:
         headers = st.checkbox("CSV files has headers", value=True)
         skip_rows = st.text_input("Number of rows to Skip:", placeholder="Enter an integer")
@@ -51,7 +52,7 @@ with col1:
             st.info("**Hint:** If headers appears to be incorrect, adjust the parameters above and reload CSV files.")
             with col2:
                 with st.spinner("Loading CSV files..."):
-                    f"{len(files)} datasets loaded:"
+                    f"{len(files)} tables loaded:"
                     for csv_file in files:
                         dataset=csv_file.name.split('.')[0]
                         datasets[dataset] = pd.read_csv(csv_file, skiprows=int(skip_rows) if skip_rows else 0, header='infer' if headers else None)

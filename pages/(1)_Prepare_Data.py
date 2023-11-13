@@ -13,10 +13,10 @@ multi_models=st.session_state['multi_models'] if 'multi_models' in st.session_st
 single_synthetic=st.session_state['single_synthetic'] if 'single_synthetic' in st.session_state else {}
 multi_synthetic=st.session_state['multi_synthetic'] if 'multi_synthetic' in st.session_state else {}
 with st.sidebar:
-    with st.expander("Datasets"):
+    with st.expander("Tables"):
         for dataset in datasets:
             f"- {dataset}"
-    with st.expander("Grouped Datasets"):
+    with st.expander("Grouped Tables"):
         if multi_metadata:
             for dataset in multi_metadata['datasets']:
                 f"- {dataset}"
@@ -42,15 +42,15 @@ with st.sidebar:
 #Main Content
 "### Prepare Data"
 if datasets=={}:
-    st.error('Please load datasets to continue.')
+    st.error('Please load tables to continue.')
 else:
     col1,col2=st.columns([1,3])
     with col1:
-        sel_task=st.radio("Task:", ("Set datatypes", "Set primary key", "Remove primary key", "Drop columns", 
-                                    "Group datasets", "Add inter-table relationship", "Remove inter-table relationship"))
+        sel_task=st.radio("Task:", ("Set datatypes", "Set/remove primary key", "Drop columns", 
+                                    "Group tables", "Add/remove inter-table relationship"))
         "---"
-        if sel_task in ("Set datatypes", "Set primary key", "Remove primary key", "Drop columns"):
-            sel_ds = st.selectbox("Select dataset:", options=datasets.keys())
+        if sel_task in ("Set datatypes", "Set/remove primary key", "Drop columns"):
+            sel_ds = st.selectbox("Select table:", options=datasets.keys())
             if sel_ds:
                 dataset=datasets[sel_ds]
                 metadata=single_metadata[sel_ds]
@@ -89,15 +89,27 @@ else:
                             else:
                                 for col in sel_cols:
                                     metadata.update_column(column_name=col, sdtype=sel_dtype)
-                        single_metadata[sel_ds]=metadata
-                        st.session_state['single_metadata']=single_metadata
-                        datasets[sel_ds]=dataset
-                        st.session_state['datasets']=datasets
-                        if multi_metadata and sel_ds in multi_metadata["datasets"]:
-                            multi_metadata["metadata"]["tables"][sel_ds]={k:v for (k,v) in single_metadata[sel_ds].to_dict().items() if k!="METADATA_SPEC_VERSION"}
-                            st.session_state['multi_metadata']=multi_metadata
+                            single_metadata[sel_ds]=metadata
+                            st.session_state['single_metadata']=single_metadata
+                            datasets[sel_ds]=dataset
+                            st.session_state['datasets']=datasets
+                            if multi_metadata and sel_ds in multi_metadata["datasets"]:
+                                multi_metadata["metadata"]["tables"][sel_ds]={k:v for (k,v) in single_metadata[sel_ds].to_dict().items() if k!="METADATA_SPEC_VERSION"}
+                                st.session_state['multi_metadata']=multi_metadata
+                        st.success(f"Columns {sel_cols} has been set as '{sel_dtype}'.")
                     st.info("**Hint:** Change all date/time columns to *'datetime'* datatype.")
-                elif sel_task=="Set primary key":
+                elif sel_task=="Set/remove primary key":
+                    meta=metadata.to_dict()
+                    if 'primary_key' in meta.keys():
+                        if st.button('Remove primary key'):
+                            del meta['primary_key']
+                            metadata=SingleTableMetadata.load_from_dict(meta)
+                            single_metadata[sel_ds]=metadata
+                            st.session_state['single_metadata']=single_metadata
+                            if multi_metadata and sel_ds in multi_metadata["datasets"]:
+                                del multi_metadata["metadata"]["tables"][sel_ds]["primary_key"]
+                                st.session_state['multi_metadata']=multi_metadata
+                            st.success("Primary key removed.")
                     pri_key_dtypes=('id','address','email','ipv4_address','ipv6_address',
                                     'mac_address','name','phone_number','ssn','user_agent_string')
                     sel_key=st.selectbox("Select column:", [col for (col,dtype) in metadata.to_dict()["columns"].items() if dtype["sdtype"] in pri_key_dtypes] )
@@ -108,17 +120,7 @@ else:
                         if multi_metadata and sel_ds in multi_metadata["datasets"]:
                             multi_metadata["metadata"]["tables"][sel_ds]["primary_key"]=sel_key
                             st.session_state['multi_metadata']=multi_metadata
-                    st.info("**Hint:** Set column datatype as 'id' or 'others' in order to be used as primary key.")
-                elif sel_task=="Remove primary key":
-                    if st.button('Remove primary key'):
-                        meta=metadata.to_dict()
-                        del meta['primary_key']
-                        metadata=SingleTableMetadata.load_from_dict(meta)
-                        single_metadata[sel_ds]=metadata
-                        st.session_state['single_metadata']=single_metadata
-                        if multi_metadata and sel_ds in multi_metadata["datasets"]:
-                            del multi_metadata["metadata"]["tables"][sel_ds]["primary_key"]
-                            st.session_state['multi_metadata']=multi_metadata
+                        st.success("Primary key updated.")
                     st.info("**Hint:** Set column datatype as 'id' or 'others' in order to be used as primary key.")
                 elif sel_task=="Drop columns":
                     to_drop=st.multiselect("Select columns:", dataset.columns)
@@ -132,6 +134,7 @@ else:
                         single_metadata[sel_ds]=metadata
                         st.session_state['datasets']=datasets
                         st.session_state['single_metadata']=single_metadata
+                        st.success(f"Columns {to_drop} have been dropped.")
                     st.warning("**Warning:** This action is irreversible, dropped columns cannot be recovered.")
             with col2:
                 f"**{sel_ds}** - Preview"
@@ -143,19 +146,20 @@ else:
                 if 'primary_key' in metadata.to_dict():
                     st.info(f"Primary key of '{sel_ds}' is set as *'{metadata.to_dict()['primary_key']}'*")
                 
-        elif sel_task == "Group datasets":
-            st.warning("**Warning:** Please set up datatypes and primary keys before grouping. Existing grouping will be replaced.")
-            sel_multi_ds = st.multiselect("Select ≥2 datasets *(tables)* to group:", options=datasets.keys())
-            if st.button("Group datasets"):
+        elif sel_task == "Group tables":
+            "Select tables:"
+            sel_multi_ds = {sel_ds:st.checkbox(sel_ds) for sel_ds in datasets.keys()}
+            if st.button("Group tables"):
+                sel_multi_ds = [sel_ds for sel_ds,is_selected in sel_multi_ds.items() if is_selected]
                 if len(sel_multi_ds)<2:
-                    st.error("**Error:** Please select 2 or more datasets.")
+                    st.error("**Error:** Please select 2 or more tables.")
                 else:
                     multi_meta = {"tables":{}, "relationships":[], "METADATA_SPEC_VERSION":"MULTI_TABLE_V1"}
                     for sel_ds in sel_multi_ds:
                         multi_meta["tables"][sel_ds]={k:v for (k,v) in single_metadata[sel_ds].to_dict().items() if k!="METADATA_SPEC_VERSION"}
                     multi_metadata={'datasets':sel_multi_ds,'metadata':multi_meta}
                     st.session_state['multi_metadata']=multi_metadata
-                    st.success("Datasets *(tables)* have been grouped. Please add inter-table relationships.")
+                    st.success(f"Tables {sel_ds} have been grouped. Please add inter-table relationships.")
             with col2:
                 for sel_ds in sel_multi_ds:
                     if "primary_key" in single_metadata[sel_ds].to_dict():
@@ -163,34 +167,41 @@ else:
                     else:
                         f'**{sel_ds}** - *No primary key*'
                     st.write(pd.DataFrame.from_dict(single_metadata[sel_ds].to_dict()["columns"]))
-        else:
+            st.warning("**Warning:** Please set up datatypes and primary keys before grouping. Existing grouping will be replaced.")
+        elif sel_task == "Add/remove inter-table relationship":
             if multi_metadata=={}:
-                st.error('Please group datasets *(tables)* first.')
+                st.error('Please group tables first.')
             else:
-                if sel_task == "Add inter-table relationship":
-                    sel_parent=st.radio("Select parent:",multi_metadata['datasets'])
-                    sel_child=st.radio("Select child *(≠ parent)*:",multi_metadata['datasets'], index=1)
-                    if sel_parent!=sel_child:
-                        sel_pri_key=st.selectbox("Select parent's primary key:",datasets[sel_parent].columns)
-                        sel_fgn_key=st.selectbox("Select child's foreign key:",datasets[sel_child].columns)
-                        if st.button("Add relationship"):
-                            multi_meta=MultiTableMetadata.load_from_dict(multi_metadata['metadata'])
+                sel_parent=st.radio("Select parent:",multi_metadata['datasets'])
+                sel_child=st.radio("Select child *(≠ parent)*:",multi_metadata['datasets'], index=1)
+                if sel_parent!=sel_child:
+                    rship_exists=False
+                    multi_meta=multi_metadata['metadata']
+                    for rship in multi_meta['relationships']:
+                        if rship['parent_table_name']==sel_parent and rship['child_table_name']==sel_child:
+                            rship_exists=True
+                        elif rship['parent_table_name']==sel_child and rship['child_table_name']==sel_parent:
+                            rship_exists=True
+                    if rship_exists:
+                        if st.button("Remove relationship"):
+                            multi_meta['relationships'].remove(rship)
+                            multi_metadata['metadata']=multi_meta
+                            st.session_state['multi_metadata']=multi_metadata
+                            st.success(f"Relationship for tables {sel_parent} and {sel_child} removed.")
+                    sel_pri_key=st.selectbox("Select parent's primary key:",datasets[sel_parent].columns)
+                    sel_fgn_key=st.selectbox("Select child's foreign key:",datasets[sel_child].columns)
+                    if st.button("Add relationship"):
+                        if not rship_exists:
+                            multi_meta=MultiTableMetadata.load_from_dict(multi_meta)
                             multi_meta.add_relationship(parent_table_name=sel_parent,child_table_name=sel_child,
                                                         parent_primary_key=sel_pri_key,child_foreign_key=sel_fgn_key)
-                            multi_metadata['metadata']=multi_meta.to_dict()
+                            multi_meta=multi_meta.to_dict()
+                            multi_metadata['metadata']=multi_meta
                             st.session_state['multi_metadata']=multi_metadata
-                    st.warning("**Warning:** Parent must have primary key and datatype of child's foreign key must match.")
-                elif sel_task == "Remove inter-table relationship":
-                        sel_parent=st.radio("Select parent:",multi_metadata['datasets'])
-                        sel_child=st.radio("Select child *(≠ parent)*:",multi_metadata['datasets'], index=1)
-                        if sel_parent!=sel_child:
-                            if st.button("Remove relationship"):
-                                multi_meta=multi_metadata['metadata']
-                                for rship in multi_meta['relationships']:
-                                    if rship['parent_table_name']==sel_parent and rship['child_table_name']==sel_child:
-                                        multi_meta['relationships'].remove(rship)
-                                multi_metadata['metadata']=multi_meta
-                                st.session_state['multi_metadata']=multi_metadata
+                            st.success(f"Relationship added for tables '{sel_parent}' and '{sel_child}'.")
+                        else:
+                            st.error(f"Relationship for tables {sel_parent} and {sel_child} exists!")
+                st.warning("**Warning:** Parent must have primary key and datatype of child's foreign key must match.")
                 with col2:
                     f"List of relationships in grouping *{str(multi_metadata['datasets'])}*"
                     st.write(pd.DataFrame.from_records(multi_metadata['metadata']['relationships']))

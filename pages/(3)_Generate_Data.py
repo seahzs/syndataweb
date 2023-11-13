@@ -10,10 +10,10 @@ multi_models=st.session_state['multi_models'] if 'multi_models' in st.session_st
 single_synthetic=st.session_state['single_synthetic'] if 'single_synthetic' in st.session_state else {}
 multi_synthetic=st.session_state['multi_synthetic'] if 'multi_synthetic' in st.session_state else {}
 with st.sidebar:
-    with st.expander("Datasets"):
+    with st.expander("Tables"):
         for dataset in datasets:
             f"- {dataset}"
-    with st.expander("Grouped Datasets"):
+    with st.expander("Grouped Tables"):
         if multi_metadata:
             for dataset in multi_metadata['datasets']:
                 f"- {dataset}"
@@ -39,17 +39,17 @@ with st.sidebar:
 #Main Content
 "### Generate Data"
 if datasets=={} or (single_models=={} and multi_models=={}):
-    st.error('Please load datasets & fit models to continue.')
+    st.error('Please load tables & fit models to continue.')
 else:
     col1,col2=st.columns([1,3])
     with col1:
         sel_task = st.radio("Task:",("Generate single table","Generate multiple tables"))
         "---"
         if sel_task=="Generate single table":
-            sel_ds = st.radio("Dataset:", options=single_models.keys())
+            sel_ds = st.radio("Select table:", options=single_models.keys())
             if sel_ds:
                 dataset_models=single_models[sel_ds]
-                sel_ml = st.radio("Fitted Model:", options=dataset_models.keys())
+                sel_ml = st.radio("Select fitted model:", options=dataset_models.keys())
                 n=datasets[sel_ds].shape[0]
                 sel_n = st.number_input(f"Records to generate (real data has {n}):", value=n, format="%i", min_value=0, step=n)
                 if st.button("Generate"):
@@ -69,7 +69,7 @@ else:
                 if multi_metadata:
                     for dataset in multi_metadata['datasets']:
                         f"- {dataset}"
-            sel_ml = st.radio("Fitted Model:", options=multi_models.keys())
+            sel_ml = st.radio("Select fitted model:", options=multi_models.keys())
             if sel_ml=="HMA":
                 st.info("**Hint:** Scaling is not available (generated data has same number of records as original).")
             elif sel_ml=="IRGAN":

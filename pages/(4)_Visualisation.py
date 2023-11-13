@@ -15,10 +15,10 @@ multi_models=st.session_state['multi_models'] if 'multi_models' in st.session_st
 single_synthetic=st.session_state['single_synthetic'] if 'single_synthetic' in st.session_state else {}
 multi_synthetic=st.session_state['multi_synthetic'] if 'multi_synthetic' in st.session_state else {}
 with st.sidebar:
-    with st.expander("Datasets"):
+    with st.expander("Tables"):
         for dataset in datasets:
             f"- {dataset}"
-    with st.expander("Grouped Datasets"):
+    with st.expander("Grouped Tables"):
         if multi_metadata:
             for dataset in multi_metadata['datasets']:
                 f"- {dataset}"
@@ -44,31 +44,31 @@ with st.sidebar:
 #Main Content
 "### Visualisation"
 if datasets=={}:
-    st.error('Please load datasets to continue.')
+    st.error('Please load tables to continue.')
 else:
     col1, col2 = st.columns([1,3])
     with col1:
-        sel_vis = st.radio("Type:", ("Distribution", "Correlation"))
-        sel_ds = st.radio("Dataset:", options=datasets.keys())
+        sel_vis = st.radio("Select visualisation:", ("Distribution", "Correlation"))
+        sel_ds = st.radio("Select table:", options=datasets.keys())
         if sel_ds:
             dataset=datasets[sel_ds]
             if sel_vis=="Distribution":
-                sel_feature = st.selectbox('Column *(Feature)*:',sorted(dataset.columns))
+                sel_feature = st.selectbox('Select column:',sorted(dataset.columns))
             elif sel_vis=="Correlation":
-                sel_x = st.selectbox('Feature:',sorted(dataset.columns))
-                sel_y = st.selectbox('Group by:',sorted(dataset.columns))
+                sel_x = st.selectbox('Select column',sorted(dataset.columns))
+                sel_y = st.selectbox('Select column (group by):',sorted(dataset.columns))
         "---"
         "Comparison with generated data:"
         syn_dataset=pd.DataFrame()
-        sel_syn = st.radio("Select type of generated data:",("Single table","Multiple tables"))
+        sel_syn = st.radio("Select type:",("Single table","Multiple tables"))
         if sel_syn=="Single table":
             if sel_ds in single_synthetic:
-                sel_ml = st.radio(f"Fitted models:", options=single_synthetic[sel_ds].keys())
+                sel_ml = st.radio(f"Select fitted model:", options=single_synthetic[sel_ds].keys())
                 syn_dataset=single_synthetic[sel_ds][sel_ml]
             else:
                 st.info("**Hint:** Please fit model and generate data to make a comparison.")
         elif sel_syn=="Multiple tables":
-            sel_ml = st.radio(f"Fitted models:", options=multi_synthetic.keys())
+            sel_ml = st.radio(f"Select fitted model:", options=multi_synthetic.keys())
             if sel_ml and sel_ds in multi_synthetic[sel_ml]:
                 syn_dataset=multi_synthetic[sel_ml][sel_ds]
             else:

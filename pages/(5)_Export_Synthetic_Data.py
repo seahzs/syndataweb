@@ -10,10 +10,10 @@ multi_models=st.session_state['multi_models'] if 'multi_models' in st.session_st
 single_synthetic=st.session_state['single_synthetic'] if 'single_synthetic' in st.session_state else {}
 multi_synthetic=st.session_state['multi_synthetic'] if 'multi_synthetic' in st.session_state else {}
 with st.sidebar:
-    with st.expander("Datasets"):
+    with st.expander("Tables"):
         for dataset in datasets:
             f"- {dataset}"
-    with st.expander("Grouped Datasets"):
+    with st.expander("Grouped Tables"):
         if multi_metadata:
             for dataset in multi_metadata['datasets']:
                 f"- {dataset}"
@@ -39,15 +39,15 @@ with st.sidebar:
 #Main Content
 "### Export Synthetic Data"
 if datasets=={} or (single_models=={} and multi_models=={}):
-    st.error('Please load datasets & fit models to continue.')
+    st.error('Please load tables & fit models to continue.')
 else:
     col1,col2=st.columns([1,3])
     with col1:
         sel_syn = st.radio("Select type of generated data:",("Single table","Multiple tables"))
         if sel_syn=="Single table":
-            sel_ds = st.radio("Synthetic Dataset:", options=single_synthetic.keys())
+            sel_ds = st.radio("Select table:", options=single_synthetic.keys())
             if sel_ds:
-                sel_ml = st.radio("Fitted Models:", options=single_synthetic[sel_ds].keys())
+                sel_ml = st.radio("Select fitted model:", options=single_synthetic[sel_ds].keys())
                 syn_dataset=single_synthetic[sel_ds][sel_ml]
                 with col2:
                     st.download_button(f"Download '{sel_ds}'",syn_dataset.to_csv(index=False).encode('utf-8'),f"{sel_ds}_{sel_ml}_single.csv","text/csv",key='download-csv')
@@ -57,7 +57,7 @@ else:
                     "Statistics:"
                     st.write(syn_dataset.describe(include='all'))
         elif sel_syn=="Multiple tables":
-            sel_ml = st.radio("Fitted Model:", options=multi_synthetic.keys())
+            sel_ml = st.radio("Select fitted model:", options=multi_synthetic.keys())
             with col2:
                 if sel_ml:
                     for sel_ds,syn_dataset in multi_synthetic[sel_ml].items():
