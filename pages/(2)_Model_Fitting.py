@@ -59,7 +59,7 @@ else:
     with col1:
         sel_task=st.radio("Task:", ("Fit single table", "Fit multiple tables *(grouped)*"))
         "---"
-        if sel_task=="Model single table":
+        if sel_task=="Fit single table":
             sel_ds = st.selectbox("Select table:", options=datasets.keys())
             if sel_ds:
                 dataset=datasets[sel_ds]
@@ -92,7 +92,7 @@ else:
                             f"**{sel_ds}** - Generated sample of 10 records using **'{sel_ml}'**"
                             st.write(synthesizer.sample(num_rows=10))
                 st.info("**Hint:** Ensure that metadata is well prepared before modeling.")
-        elif sel_task=="Model multiple tables *(grouped)*":
+        elif sel_task=="Fit multiple tables *(grouped)*":
             if multi_metadata:
                 metadata=MultiTableMetadata.load_from_dict(multi_metadata['metadata'])
                 multi_datasets={ds:datasets[ds] for ds in multi_metadata['datasets']}
