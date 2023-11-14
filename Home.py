@@ -12,6 +12,7 @@ multi_models=st.session_state['multi_models'] if 'multi_models' in st.session_st
 single_synthetic=st.session_state['single_synthetic'] if 'single_synthetic' in st.session_state else {}
 multi_synthetic=st.session_state['multi_synthetic'] if 'multi_synthetic' in st.session_state else {}
 with st.sidebar:
+    "***Need help?***  *See [documentation](https://github.com/seahzs/syndataweb/) on Github.*"
     with st.expander("Tables"):
         for dataset in datasets:
             f"- {dataset}"
@@ -39,11 +40,7 @@ with st.sidebar:
                 f"- {dataset}"
 # Main Content
 "### Synthetic Data Web App"
-colA,colB = st.columns(2)
-with colA:
-    "**Workflow:** *Load Data > Prepare > Model > Generate > Visualise > Export*"
-with colB:
-    "**Documentation on Github:** https://github.com/seahzs/syndataweb/"
+"**Workflow:** *Load Data > Prepare > Model > Generate > Visualise > Export*"
 st.info("To begin, please upload tables first. Ensure that data is well-prepared with headers and no missing values.")
 "### Upload data"
 col1,col2=st.columns([2,5])
