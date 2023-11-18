@@ -91,7 +91,8 @@ else:
                             st.session_state['single_models']=single_models
                             f"**{sel_ds}** - Generated sample of 10 records using **'{sel_ml}'**"
                             st.write(synthesizer.sample(num_rows=10))
-                st.info("**Hint:** Ensure that metadata is well prepared before modeling.")
+                else:
+                    st.info("**Hint:** Ensure that metadata is well prepared before modeling.")
         elif sel_task=="Fit multiple tables *(grouped)*":
             if multi_metadata:
                 metadata=MultiTableMetadata.load_from_dict(multi_metadata['metadata'])
@@ -114,6 +115,7 @@ else:
                             multi_models[sel_ml]=synthesizer
                             st.session_state['multi_models']=multi_models
                             st.success(f"Grouped tables has been fitted for {sel_ml}. Please proceed to generate data.")
-                st.info("**Hint:** Ensure that inter-table relationships are well prepared before modeling.")
+                else:
+                    st.info("**Hint:** Ensure that inter-table relationships are well prepared before modeling.")
             else:
                 st.error('Please group tables first.')
