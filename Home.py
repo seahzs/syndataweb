@@ -42,8 +42,8 @@ with st.sidebar:
 "### Synthetic Data Web App"
 "**Workflow:** *Load Data > Prepare > Model > Generate > Visualise > Export*"
 st.info("To begin, please upload tables first. Ensure that data is well-prepared with headers and no missing values.")
+st.warning("Warning: Do not upload **confidential** or **sensitive data** if running from online demo at https://syndataweb.streamlit.app/ as this is a **third-party server**.")
 "### Upload data"
-st.warning("Warning: Do not upload confidential or sensitive data if running from the online demo at https://syndataweb.streamlit.app/ as this is a third-party server.")
 col1,col2=st.columns([2,5])
 with col1:
     files = st.file_uploader("Select CSV files:", type="csv", accept_multiple_files=True)
