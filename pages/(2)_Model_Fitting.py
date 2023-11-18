@@ -71,7 +71,7 @@ else:
                 sel_ml=st.radio("Select model *(synthesizer)*:", ("Copula GAN","CTGAN","Gaussian Copula",'TVAE','IRGAN'))
                 if sel_ml in ("Copula GAN","CTGAN",'TVAE','IRGAN'):
                     sel_epochs=st.number_input('Epochs (*training cycles*):', value=1, format="%i", min_value=1)
-                if st.button("Fit model"):
+                if st.button("Fit model",type='primary'):
                     if sel_ml=="Gaussian Copula":
                         synthesizer = GaussianCopulaSynthesizer(metadata)
                     elif sel_ml=="CTGAN":
@@ -104,7 +104,7 @@ else:
                 sel_ml=st.radio("Select model *(synthesizer)*:", ("HMA","IRGAN"))
                 if sel_ml =='IRGAN':
                     sel_epochs=st.number_input('Epochs (*training cycles*):', value=1, format="%i", min_value=1)
-                if st.button("Fit model"):
+                if st.button("Fit model",type='primary'):
                     if sel_ml=="HMA":
                         synthesizer = HMASynthesizer(metadata)
                     elif sel_ml=="IRGAN":

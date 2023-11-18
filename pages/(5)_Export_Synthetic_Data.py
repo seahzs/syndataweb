@@ -51,7 +51,7 @@ else:
                 sel_ml = st.radio("Select fitted model:", options=single_synthetic[sel_ds].keys())
                 syn_dataset=single_synthetic[sel_ds][sel_ml]
                 with col2:
-                    st.download_button(f"Download '{sel_ds}'",syn_dataset.to_csv(index=False).encode('utf-8'),f"{sel_ds}_{sel_ml}_single.csv","text/csv",key='download-csv')
+                    st.download_button(f"Download '{sel_ds}'",syn_dataset.to_csv(index=False).encode('utf-8'),f"{sel_ds}_{sel_ml}_single.csv","text/csv",key='download-csv',type='primary')
                     f"**{sel_ds}** - Generated using **'{sel_ml}'** *(single table)*"
                     "Preview:"
                     st.write(syn_dataset.head())
@@ -67,7 +67,7 @@ else:
                             f"**{sel_ds}** - Generated using **'{sel_ml}'** *(multiple tables)*"
                             "Preview:"
                             st.write(syn_dataset.head())
-                            st.download_button(f"Download '{sel_ds}'",syn_dataset.to_csv(index=False).encode('utf-8'),f"{sel_ds}_{sel_ml}_multi.csv","text/csv",key=f'download-{sel_ds}')
+                            st.download_button(f"Download '{sel_ds}'",syn_dataset.to_csv(index=False).encode('utf-8'),f"{sel_ds}_{sel_ml}_multi.csv","text/csv",key=f'download-{sel_ds}',type='primary')
                         with colB:
                             "Statistics:"
                             st.write(syn_dataset.describe())

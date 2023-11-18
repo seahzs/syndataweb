@@ -53,7 +53,7 @@ else:
                 sel_ml = st.radio("Select fitted model:", options=dataset_models.keys())
                 n=datasets[sel_ds].shape[0]
                 sel_n = st.number_input(f"Records to generate (real data has {n}):", value=n, format="%i", min_value=0, step=n)
-                if st.button("Generate"):
+                if st.button("Generate",type='primary'):
                     with col2:
                         with st.spinner('Generating data, please wait...'):
                             syn_data=dataset_models[sel_ml].sample(num_rows=sel_n)
@@ -76,7 +76,7 @@ else:
             elif sel_ml=="IRGAN":
                 sel_scaling=st.number_input(f"Scaling (in multiples of the original records):", value=1, format="%i", min_value=0)
             if sel_ml:
-                if st.button("Generate"):
+                if st.button("Generate",type='primary'):
                     with col2:
                         with st.spinner('Generating data, please wait...'):
                             if sel_ml=="HMA":

@@ -67,7 +67,7 @@ else:
                         oth_dtype = st.selectbox("Other Datatype:", ('address','email','ipv4_address','ipv6_address','mac_address',
                                                                      'name','phone_number','ssn','user_agent_string'))
                         pii = st.toggle('sensitive info (to anonymize)')
-                    if st.button('Set datatype'):
+                    if st.button('Set datatype',type='primary'):
                         if sel_cols:
                             if sel_dtype=='other':
                                 for col in sel_cols:
@@ -103,7 +103,7 @@ else:
                 elif sel_task=="Set/remove primary key":
                     meta=metadata.to_dict()
                     if 'primary_key' in meta.keys():
-                        if st.button('Remove primary key'):
+                        if st.button('Remove primary key',type='primary'):
                             del meta['primary_key']
                             metadata=SingleTableMetadata.load_from_dict(meta)
                             single_metadata[sel_ds]=metadata
@@ -115,7 +115,7 @@ else:
                     pri_key_dtypes=('id','address','email','ipv4_address','ipv6_address',
                                     'mac_address','name','phone_number','ssn','user_agent_string')
                     sel_key=st.selectbox("Select column:", [col for (col,dtype) in metadata.to_dict()["columns"].items() if dtype["sdtype"] in pri_key_dtypes] )
-                    if st.button('Set primary key'):
+                    if st.button('Set primary key',type='primary'):
                         metadata.set_primary_key(sel_key)
                         single_metadata[sel_ds]=metadata
                         st.session_state['single_metadata']=single_metadata
@@ -127,7 +127,7 @@ else:
                         st.info("**Hint:** Set column datatype as 'id' or 'others' in order to be used as primary key.")
                 elif sel_task=="Drop column":
                     to_drop=st.multiselect("Select columns:", dataset.columns)
-                    if st.button('Drop columns'):
+                    if st.button('Drop columns',type='primary'):
                         dataset=dataset.drop(columns=to_drop)
                         meta_dict=metadata.to_dict()
                         for col in to_drop:
@@ -153,7 +153,7 @@ else:
         elif sel_task == "Group tables":
             "Select tables:"
             sel_multi_ds = {sel_ds:st.checkbox(sel_ds) for sel_ds in datasets.keys()}
-            if st.button("Group tables"):
+            if st.button("Group tables",type='primary'):
                 sel_multi_ds = [sel_ds for sel_ds,is_selected in sel_multi_ds.items() if is_selected]
                 if len(sel_multi_ds)<2:
                     st.error("**Error:** Please select 2 or more tables.")
@@ -188,14 +188,14 @@ else:
                         elif rship['parent_table_name']==sel_child and rship['child_table_name']==sel_parent:
                             rship_exists=True
                     if rship_exists:
-                        if st.button("Remove relationship"):
+                        if st.button("Remove relationship",type='primary'):
                             multi_meta['relationships'].remove(rship)
                             multi_metadata['metadata']=multi_meta
                             st.session_state['multi_metadata']=multi_metadata
                             st.success(f"Relationship for tables {sel_parent} and {sel_child} removed.")
                     sel_pri_key=st.selectbox("Select parent's primary key:",datasets[sel_parent].columns)
                     sel_fgn_key=st.selectbox("Select child's foreign key:",datasets[sel_child].columns)
-                    if st.button("Add relationship"):
+                    if st.button("Add relationship",type='primary'):
                         if not rship_exists:
                             multi_meta=MultiTableMetadata.load_from_dict(multi_meta)
                             multi_meta.add_relationship(parent_table_name=sel_parent,child_table_name=sel_child,

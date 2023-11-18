@@ -50,7 +50,7 @@ with col1:
     if files:
         headers = st.checkbox("CSV files has headers", value=True)
         skip_rows = st.text_input("Number of rows to Skip:", placeholder="Enter an integer")
-        if st.button("Load CSV files"):
+        if st.button("Load CSV files",type='primary'):
             st.info("**Hint:** If headers appears to be incorrect, adjust the parameters above and reload CSV files.")
             with col2:
                 with st.spinner("Loading CSV files..."):
