@@ -17,6 +17,8 @@ This project is a web app for generating synthetic data using ```single table```
 - Click on the menu at the bottom-right to restart the app if there are issues.
 
 ## Usage Instructions
+https://github.com/seahzs/syndataweb/assets/22360274/1a9662b5-fe03-4400-9bbb-6f794adf8e2a
+
 ### To begin: Uploading Real Data
 - At the homepage, upload CSV files each containing one table. 
 - It would be best to prepare pre-processed CSV files with table headers and records with missing fields pre-filled or removed.
