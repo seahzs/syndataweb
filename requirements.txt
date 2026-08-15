@@ -9,5 +9,5 @@ tensorboard==2.15.1
 datasynthesizer==0.1.13
 pandasql==0.7.3
 pyyaml==6.0
-nltk==3.8.1
+nltk>=3.10.0
 https://github.com/seahzs/syndataweb/blob/main/irg-1.0.0-py3-none-any.whl?raw=true
